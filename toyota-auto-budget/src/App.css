@@ -449,3 +449,65 @@ a {
     gap: 0.25rem;
   }
 }
+
+/* Matchmaker Quiz Styles */
+.slider-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 2rem 0;
+  padding: 2rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.slider-row span {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.8);
+  min-width: 120px;
+  text-align: center;
+}
+
+.slider-row input[type="range"] {
+  flex: 1;
+  height: 8px;
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.2);
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.slider-row input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.slider-row input[type="range"]::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+@media (max-width: 768px) {
+  .slider-row {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
+  
+  .slider-row span {
+    min-width: auto;
+  }
+}

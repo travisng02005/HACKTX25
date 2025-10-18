@@ -63,49 +63,37 @@ function Matchmaker() {
   };
 
   const calculateResult = () => {
-    // aggregate trait scores
-    const totals = { eco: 0, performance: 0, comfort: 0, innovation: 0, style: 0 };
-    const counts = { eco: 0, performance: 0, comfort: 0, innovation: 0, style: 0 };
-
-    for (const q of questions) {
-      const score = answers[q.id] || 4; // default neutral
-      for (const [trait, weight] of Object.entries(q.traits)) {
-        totals[trait] += score * weight;
-        counts[trait] += weight;
-      }
-    }
-
-    const userProfile = {};
-    for (const key in totals) {
-      userProfile[key] = counts[key] ? totals[key] / counts[key] : 0;
-    }
-
-    // find best match
-    let best = null;
-    let bestDist = Infinity;
-    for (const car of cars) {
-      const d = distance(userProfile, car.traits);
-      if (d < bestDist) {
-        bestDist = d;
-        best = car.name;
-      }
-    }
-
-    setResult({ car: best, profile: userProfile });
+    // For hackathon - hardcode RAV4 as the result
+    const rav4 = cars.find(car => car.name === "RAV4");
+    setResult({ car: rav4, profile: {} });
   };
 
   // UI
   if (result) {
+    const handleBuildRAV4 = () => {
+      // Open Toyota RAV4 configurator in new tab
+      window.open('https://www.toyota.com/configurator/build/step/model/year/2025/series/rav4/', '_blank');
+      // Redirect current page to questionnaire
+      navigate('/questionnaire');
+    };
+
     return (
       <div className="container">
         <h1>Your Toyota Match</h1>
-        <h2>{"RAV4"}</h2>
+        <h2>{result.car.name}</h2>
         <p>
-          Based on your preferences, the <b>{"RAV4"}</b> fits your driving personality best!
+          Based on your preferences, the <b>{result.car.name}</b> fits your driving personality best!
         </p>
-        <Link to="/">
-          <button className="nav-button">Back to Home</button>
-        </Link>
+        <p>Starting MSRP: <strong>${result.car.msrp.toLocaleString()}</strong></p>
+        
+        <div className="button-container">
+          <button className="nav-button external-button" onClick={handleBuildRAV4}>
+            Build Your RAV4 & Get Quote
+          </button>
+          <Link to="/">
+            <button className="nav-button">Back to Home</button>
+          </Link>
+        </div>
       </div>
     );
   }
