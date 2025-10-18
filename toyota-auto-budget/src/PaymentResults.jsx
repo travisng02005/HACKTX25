@@ -360,12 +360,6 @@ function PaymentResults() {
       </div>
 
       <div className="button-container">
-        <Link to="/questionnaire">
-          <button className="nav-button">Back to Questionnaire</button>
-        </Link>
-        <Link to="/matchmaker" state={{ formData, paymentCalculations }}>
-          <button className="nav-button">View Vehicle Matches</button>
-        </Link>
         <Link to="/">
           <button className="nav-button">Back to Home</button>
         </Link>
