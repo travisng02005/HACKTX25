@@ -1,8 +1,10 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import './App.css'
 
 function Questionnaire() {
+  const navigate = useNavigate()
+  
   const [formData, setFormData] = useState({
     // Vehicle Info
     msrp: '',
@@ -106,9 +108,9 @@ function Questionnaire() {
 
   const handleFormSubmit = (e) => {
     e.preventDefault()
-    // Here you would typically send the data to your backend or navigate to results
     console.log('Form submitted:', formData)
-    alert('Questionnaire submitted! Redirecting to payment calculator...')
+    // Navigate to payment results page with form data
+    navigate('/payment-results', { state: { formData } })
   }
 
   const getCreditScoreRange = (score) => {
