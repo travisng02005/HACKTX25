@@ -26,10 +26,10 @@ function RAV4Model({ modelPath }) {
   const autoScale = maxDimension > 0 ? targetSize / maxDimension : 50
   console.log('Auto-calculated scale:', autoScale)
   
-  // Rotate the model continuously
+  // Rotate the model continuously (slower speed)
   useFrame((state, delta) => {
     if (meshRef.current) {
-      meshRef.current.rotation.y += delta * 0.5 // Adjust speed as needed
+      meshRef.current.rotation.y += delta * 0.15 // Much slower spinning
     }
   })
   
@@ -44,7 +44,7 @@ function RAV4Model({ modelPath }) {
       ref={meshRef}
       object={scene}
       scale={[finalScale, finalScale, finalScale]} // Smart scaling - 10x larger!
-      position={[0, 0, 0]} // Center position
+      position={[0, -8, 0]} // Lowered position to center better
     />
   )
 }
