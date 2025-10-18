@@ -265,6 +265,29 @@ a {
   margin-top: 1rem;
 }
 
+.prefilled-message {
+  color: #48bb78;
+  background: rgba(72, 187, 120, 0.1);
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px solid rgba(72, 187, 120, 0.3);
+  margin: 1rem 0;
+  font-weight: 600;
+  text-align: center;
+  animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .input-row {

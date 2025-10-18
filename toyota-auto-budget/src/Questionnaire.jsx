@@ -1,16 +1,20 @@
-import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import './App.css'
 
 function Questionnaire() {
   const navigate = useNavigate()
+  const location = useLocation()
+  
+  // Get pre-filled data from navigation state (from Matchmaker)
+  const prefilledData = location.state?.prefilledData || {}
   
   const [formData, setFormData] = useState({
     // Vehicle Info
-    msrp: '',
-    make: 'Toyota',
-    model: '',
-    year: '2026',
+    msrp: prefilledData.msrp || '',
+    make: prefilledData.make || 'Toyota',
+    model: prefilledData.model || '',
+    year: prefilledData.year || '2026',
     color: '',
     
     // User Financial Info
@@ -28,6 +32,16 @@ function Questionnaire() {
 
   const [toyotaLink, setToyotaLink] = useState('')
   const [linkError, setLinkError] = useState('')
+  const [prefilledMessage, setPrefilledMessage] = useState('')
+
+  // Show message when data is pre-filled from Matchmaker
+  useEffect(() => {
+    if (prefilledData.model) {
+      setPrefilledMessage(`✅ Vehicle information pre-filled from your ${prefilledData.model} match!`)
+      // Clear message after 5 seconds
+      setTimeout(() => setPrefilledMessage(''), 5000)
+    }
+  }, [prefilledData.model])
 
   const handleInputChange = (e) => {
     const { name, value } = e.target
@@ -126,6 +140,13 @@ function Questionnaire() {
     <div className="container">
       <h1>Payment Plan Questionnaire</h1>
       <p>Find the perfect payment plan for your Toyota vehicle</p>
+      
+      {/* Pre-filled message */}
+      {prefilledMessage && (
+        <div className="prefilled-message">
+          {prefilledMessage}
+        </div>
+      )}
       
       {/* Toyota Link Parser Section */}
       <div className="form-section">

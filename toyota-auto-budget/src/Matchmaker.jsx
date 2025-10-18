@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "./App.css";
 
 const questions = [
@@ -17,20 +17,21 @@ const questions = [
   { id: 12, text: "I like trying innovative or less common technologies (like hydrogen).", traits: { innovation: 1 } },
 ];
 
-// simplified Toyota personality matrix
+// simplified Toyota personality matrix with MSRP data
 const cars = [
-  { name: "Corolla", traits: { eco: 4, performance: 3, comfort: 5, innovation: 3, style: 3 } },
-  { name: "Corolla Hybrid", traits: { eco: 6, performance: 3, comfort: 5, innovation: 4, style: 3 } },
-  { name: "Corolla Hatchback", traits: { eco: 4, performance: 4, comfort: 4, innovation: 3, style: 5 } },
-  { name: "Prius", traits: { eco: 7, performance: 3, comfort: 5, innovation: 6, style: 4 } },
-  { name: "Prius Plug-in Hybrid", traits: { eco: 7, performance: 3, comfort: 5, innovation: 7, style: 4 } },
-  { name: "Camry", traits: { eco: 5, performance: 4, comfort: 7, innovation: 5, style: 4 } },
-  { name: "GR 86", traits: { eco: 2, performance: 7, comfort: 3, innovation: 3, style: 6 } },
-  { name: "GR Corolla", traits: { eco: 3, performance: 7, comfort: 3, innovation: 4, style: 6 } },
-  { name: "GR Supra", traits: { eco: 2, performance: 7, comfort: 4, innovation: 4, style: 7 } },
-  { name: "Sienna", traits: { eco: 4, performance: 3, comfort: 7, innovation: 5, style: 3 } },
-  { name: "Crown", traits: { eco: 5, performance: 5, comfort: 6, innovation: 6, style: 6 } },
-  { name: "Mirai", traits: { eco: 7, performance: 3, comfort: 5, innovation: 7, style: 4 } },
+  { name: "Corolla", msrp: 26000, traits: { eco: 4, performance: 3, comfort: 5, innovation: 3, style: 3 } },
+  { name: "Corolla Hybrid", msrp: 28000, traits: { eco: 6, performance: 3, comfort: 5, innovation: 4, style: 3 } },
+  { name: "Corolla Hatchback", msrp: 27000, traits: { eco: 4, performance: 4, comfort: 4, innovation: 3, style: 5 } },
+  { name: "Prius", msrp: 30000, traits: { eco: 7, performance: 3, comfort: 5, innovation: 6, style: 4 } },
+  { name: "Prius Plug-in Hybrid", msrp: 35000, traits: { eco: 7, performance: 3, comfort: 5, innovation: 7, style: 4 } },
+  { name: "Camry", msrp: 32000, traits: { eco: 5, performance: 4, comfort: 7, innovation: 5, style: 4 } },
+  { name: "GR 86", msrp: 38000, traits: { eco: 2, performance: 7, comfort: 3, innovation: 3, style: 6 } },
+  { name: "GR Corolla", msrp: 42000, traits: { eco: 3, performance: 7, comfort: 3, innovation: 4, style: 6 } },
+  { name: "GR Supra", msrp: 55000, traits: { eco: 2, performance: 7, comfort: 4, innovation: 4, style: 7 } },
+  { name: "Sienna", msrp: 45000, traits: { eco: 4, performance: 3, comfort: 7, innovation: 5, style: 3 } },
+  { name: "Crown", msrp: 42000, traits: { eco: 5, performance: 5, comfort: 6, innovation: 6, style: 6 } },
+  { name: "Mirai", msrp: 50000, traits: { eco: 7, performance: 3, comfort: 5, innovation: 7, style: 4 } },
+  { name: "RAV4", msrp: 35000, traits: { eco: 5, performance: 4, comfort: 6, innovation: 4, style: 4 } },
 ];
 
 // helper function to compute similarity
@@ -44,6 +45,7 @@ function distance(user, car) {
 }
 
 function Matchmaker() {
+  const navigate = useNavigate();
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState({});
   const [result, setResult] = useState(null);
@@ -73,8 +75,17 @@ function Matchmaker() {
     const handleBuildRAV4 = () => {
       // Open Toyota RAV4 configurator in new tab
       window.open('https://www.toyota.com/configurator/build/step/model/year/2025/series/rav4/', '_blank');
-      // Redirect current page to questionnaire
-      navigate('/questionnaire');
+      // Redirect current page to questionnaire with RAV4 data pre-filled
+      navigate('/questionnaire', { 
+        state: { 
+          prefilledData: {
+            model: result.car.name,
+            msrp: result.car.msrp.toString(),
+            make: 'Toyota',
+            year: '2025'
+          }
+        }
+      });
     };
 
     return (
