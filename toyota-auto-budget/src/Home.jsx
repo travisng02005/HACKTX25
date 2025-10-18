@@ -12,8 +12,12 @@ function Home() {
       <p>Welcome to your auto budgeting companion! (Updated)</p>
       
       <div className="button-container">
-        <Link to="/second-page">
-          <button className="nav-button">Go to Second Page</button>
+        <Link to="/questionnaire">
+          <button className="nav-button">Questionnaire</button>
+        </Link>
+        
+        <Link to="/matchmaker">
+          <button className="nav-button">Matchmaker</button>
         </Link>
         
         <button 
