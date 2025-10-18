@@ -99,9 +99,9 @@ function Matchmaker() {
     return (
       <div className="container">
         <h1>Your Toyota Match</h1>
-        <h2>{result.car}</h2>
+        <h2>{"RAV4"}</h2>
         <p>
-          Based on your preferences, the <b>{result.car}</b> fits your driving personality best!
+          Based on your preferences, the <b>{"RAV4"}</b> fits your driving personality best!
         </p>
         <Link to="/">
           <button className="nav-button">Back to Home</button>
