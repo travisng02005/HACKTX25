@@ -1,5 +1,8 @@
 import { useState, useEffect } from 'react'
 import { useLocation, useNavigate, Link } from 'react-router-dom'
+import { Canvas } from '@react-three/fiber'
+import { OrbitControls, Environment } from '@react-three/drei'
+import RAV4Model from './RAV4Model'
 import './App.css'
 
 function PaymentResults() {
@@ -143,6 +146,32 @@ function PaymentResults() {
     <div className="container">
       <h1>Payment Plan Results</h1>
       <p>Your personalized Toyota payment plan</p>
+
+      {/* 3D RAV4 Model */}
+      <div className="model-section">
+        <h2>Your {formData.model || 'Toyota RAV4'}</h2>
+        <div className="model-viewer">
+          <Canvas camera={{ position: [50, 30, 50], fov: 75 }}>
+            <ambientLight intensity={0.8} />
+            <spotLight position={[100, 100, 100]} angle={0.3} penumbra={1} intensity={1} />
+            <pointLight position={[-80, 40, -80]} intensity={0.6} />
+            <directionalLight position={[40, 80, 20]} intensity={0.5} />
+            <RAV4Model modelPath="/models/2023_toyota_rav4_hybrid.glb" />
+            <OrbitControls 
+              enablePan={false} 
+              enableZoom={true} 
+              enableRotate={true}
+              maxDistance={200}
+              minDistance={30}
+              target={[0, 0, 0]}
+            />
+            <Environment preset="sunset" />
+          </Canvas>
+        </div>
+        <p className="model-instructions">
+          🖱️ Click and drag to rotate • Scroll to zoom
+        </p>
+      </div>
 
       <div className="results-layout">
         {/* Payment Results Section */}
