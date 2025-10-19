@@ -241,17 +241,20 @@ function Questionnaire() {
             
             <div className="input-row">
               <div className="input-group">
-                <label>Credit Score:</label>
-                <input
-                  type="number"
-                  name="creditScore"
-                  value={formData.creditScore}
-                  onChange={handleInputChange}
-                  min="300"
-                  max="850"
-                  placeholder="700"
-                  required
-                />
+                <label>Credit Score: {formData.creditScore || 700}</label>
+                <div className="slider-container">
+                  <span className="slider-label">300</span>
+                  <input
+                    type="range"
+                    name="creditScore"
+                    value={formData.creditScore || 700}
+                    onChange={handleInputChange}
+                    min="300"
+                    max="850"
+                    className="form-slider"
+                  />
+                  <span className="slider-label">850</span>
+                </div>
                 {formData.creditScore && (
                   <small className="credit-range">
                     {getCreditScoreRange(parseInt(formData.creditScore))}
@@ -279,16 +282,22 @@ function Questionnaire() {
             
             <div className="input-row">
               <div className="input-group">
-                <label>Down Payment ($):</label>
-                <input
-                  type="number"
-                  name="downPayment"
-                  value={formData.downPayment}
-                  onChange={handleInputChange}
-                  min="0"
-                  placeholder="5000"
-                  required
-                />
+                <label>Down Payment: ${parseInt(formData.downPayment || 0).toLocaleString()}</label>
+                <div className="slider-container">
+                  <span className="slider-label">$0</span>
+                  <input
+                    type="range"
+                    name="downPayment"
+                    value={formData.downPayment || 0}
+                    onChange={handleInputChange}
+                    min="0"
+                    max={formData.msrp || 50000}
+                    step="500"
+                    className="form-slider"
+                  />
+                  <span className="slider-label">${parseInt(formData.msrp || 50000).toLocaleString()}</span>
+                </div>
+                <small>Max: Vehicle MSRP (${parseInt(formData.msrp || 50000).toLocaleString()})</small>
               </div>
               
               <div className="input-group">
