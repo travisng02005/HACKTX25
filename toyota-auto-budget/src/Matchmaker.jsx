@@ -115,6 +115,22 @@ function Matchmaker() {
   const [answers, setAnswers] = useState({});
   const [result, setResult] = useState(null);
 
+  // Format number with commas for display
+  const formatNumberWithCommas = (value) => {
+    if (!value) return ''
+    const stringValue = value.toString().replace(/,/g, '')
+    const numericValue = stringValue.replace(/[^\d]/g, '')
+    if (numericValue.length >= 4) {
+      return numericValue.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+    }
+    return numericValue
+  }
+
+  const parseFormattedNumber = (value) => {
+    if (!value) return ''
+    return value.toString().replace(/,/g, '')
+  }
+
   const currentQuestion = questions[step];
 
   const handleAnswer = (value) => {
@@ -138,13 +154,15 @@ function Matchmaker() {
   if (result) {
     const handleBuildRAV4 = () => {
       window.open("https://www.toyota.com/configurator/build/step/model/year/2025/series/rav4/", "_blank");
-      navigate("/questionnaire", {
+      // Parse the formatted income before passing it
+      const incomeValue = answers[13] ? parseFormattedNumber(answers[13]) : '';
+      navigate("/vehicle-info", {
         state: {
           prefilledData: {
             model: result.car.name,
             msrp: result.car.msrp.toString(),
             year: "2025",
-            income: answers[13] || '', // Include income from question 13
+            income: incomeValue, // Include income from question 13 (unformatted)
           },
         },
       });
@@ -188,10 +206,19 @@ function Matchmaker() {
           <div className="input-group">
             <label>Annual Income ($):</label>
             <input
-              type="number"
+              type="text"
               value={answers[currentQuestion.id] || ''}
               onChange={(e) => handleAnswer(e.target.value)}
-              placeholder="50000"
+              onBlur={(e) => {
+                const value = e.target.value;
+                if (value) {
+                  const clean = value.replace(/[^\d]/g, '');
+                  if (clean && clean.length >= 4) {
+                    handleAnswer(formatNumberWithCommas(clean));
+                  }
+                }
+              }}
+              placeholder="50,000"
               min="0"
               className="income-input"
             />

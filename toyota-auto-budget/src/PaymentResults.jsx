@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useLocation, useNavigate, Link } from 'react-router-dom'
 import { Canvas } from '@react-three/fiber'
 import { OrbitControls, Environment } from '@react-three/drei'
@@ -19,6 +19,16 @@ function PaymentResults() {
     }
   }, [initialData, navigate])
 
+  // Update rebates when initialData changes
+  useEffect(() => {
+    if (initialData?.rebates) {
+      setRebates({
+        military: initialData.rebates.military || false,
+        college: initialData.rebates.college || false
+      })
+    }
+  }, [initialData])
+
   const [formData, setFormData] = useState(initialData || {
     msrp: '',
     make: 'Toyota',
@@ -37,15 +47,30 @@ function PaymentResults() {
   const [paymentCalculations, setPaymentCalculations] = useState({})
   const [planComparisonType, setPlanComparisonType] = useState('financing') // 'financing' or 'leasing'
   const [rebates, setRebates] = useState({
-    military: false,
-    college: false
+    military: initialData?.rebates?.military || false,
+    college: initialData?.rebates?.college || false
   })
+
+  // Ref for payment plan options section
+  const paymentPlanRef = useRef(null)
 
   // Console log every time formData changes
   useEffect(() => {
     console.log('Form data updated:', formData)
     calculatePayments()
   }, [formData, rebates])
+
+  // Scroll to Payment Plan Options when component mounts
+  useEffect(() => {
+    if (paymentPlanRef.current) {
+      setTimeout(() => {
+        paymentPlanRef.current.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start'
+        })
+      }, 500) // Small delay to allow content to render and calculations to complete
+    }
+  }, []) // Empty dependency array - runs only once on mount
 
   const handleInputChange = (e) => {
     const { name, value } = e.target
@@ -578,7 +603,7 @@ function PaymentResults() {
       </div>
 
       {/* Plan Comparison Cards */}
-      <div className="plan-comparison-section">
+      <div className="plan-comparison-section" ref={paymentPlanRef}>
         <div className="plan-type-selector">
           <h2>Payment Plan Options</h2>
           <select 

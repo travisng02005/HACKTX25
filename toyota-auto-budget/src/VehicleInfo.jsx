@@ -8,6 +8,14 @@ function VehicleInfo() {
   const location = useLocation()
   const option1Ref = useRef(null)
 
+  // Add gradient background class
+  useEffect(() => {
+    document.body.classList.add('vehicle-info-page')
+    return () => {
+      document.body.classList.remove('vehicle-info-page')
+    }
+  }, [])
+
   const prefilledData = location.state?.prefilledData || {}
 
   const [formData, setFormData] = useState({
@@ -16,17 +24,44 @@ function VehicleInfo() {
     trim: prefilledData.trim || '',
     msrp: prefilledData.msrp || '',
     year: prefilledData.year || '2026',
-    color: prefilledData.color || ''
+    color: prefilledData.color || '',
+    income: prefilledData.income || '' // Include income from Matchmaker
   })
 
   const [toyotaLink, setToyotaLink] = useState('')
   const [linkError, setLinkError] = useState('')
   const [prefilledMessage, setPrefilledMessage] = useState('')
 
+  // Format number with commas for display
+  const formatNumberWithCommas = (value) => {
+    if (!value) return ''
+    const stringValue = value.toString().replace(/,/g, '')
+    const numericValue = stringValue.replace(/[^\d]/g, '')
+    if (numericValue.length >= 4) {
+      return numericValue.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+    }
+    return numericValue
+  }
+
+  const parseFormattedNumber = (value) => {
+    if (!value) return ''
+    return value.toString().replace(/,/g, '')
+  }
+
   useEffect(() => {
     if (prefilledData.model) {
       setPrefilledMessage(`✅ Vehicle info pre-filled from your ${prefilledData.model} match!`)
       setTimeout(() => setPrefilledMessage(''), 5000)
+      
+      // Scroll to Option 2 when coming from Matchmaker
+      if (option1Ref.current) {
+        setTimeout(() => {
+          option1Ref.current.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+          })
+        }, 100) // Small delay to ensure DOM is ready
+      }
     }
   }, [prefilledData.model])
 
@@ -38,13 +73,26 @@ function VehicleInfo() {
     }))
   }
 
+  const handleInputBlur = (e) => {
+    const { name, value } = e.target
+    if (name === 'msrp' && value) {
+      const clean = value.replace(/[^\d]/g, '')
+      if (clean && clean.length >= 4) {
+        setFormData(prev => ({ ...prev, [name]: formatNumberWithCommas(clean) }))
+      }
+    }
+  }
+
   const handleModelChange = (e) => {
     const selectedModel = e.target.value
+    const basePrice = selectedModel ? toyotaVehicles[selectedModel].basePrice : ''
+    const formattedPrice = basePrice ? formatNumberWithCommas(basePrice.toString()) : ''
+    
     setFormData((prev) => ({
       ...prev,
       model: selectedModel,
       trim: '',
-      msrp: selectedModel ? toyotaVehicles[selectedModel].basePrice.toString() : ''
+      msrp: formattedPrice
     }))
   }
 
@@ -56,10 +104,13 @@ function VehicleInfo() {
       const trimData = toyotaVehicles[selectedModel].trims.find(
         (trim) => trim.name === selectedTrim
       )
+      const trimPrice = trimData ? trimData.price : null
+      const formattedPrice = trimPrice ? formatNumberWithCommas(trimPrice.toString()) : formData.msrp
+      
       setFormData((prev) => ({
         ...prev,
         trim: selectedTrim,
-        msrp: trimData ? trimData.price.toString() : prev.msrp
+        msrp: formattedPrice
       }))
     } else {
       setFormData((prev) => ({
@@ -101,11 +152,14 @@ function VehicleInfo() {
       }
 
       if (model) {
+        const basePrice = toyotaVehicles[model]?.basePrice
+        const formattedPrice = basePrice ? formatNumberWithCommas(basePrice.toString()) : formData.msrp
+        
         setFormData((prev) => ({
           ...prev,
           model,
           year: year || prev.year,
-          msrp: toyotaVehicles[model]?.basePrice.toString() || prev.msrp,
+          msrp: formattedPrice,
           trim: ''
         }))
         setLinkError('')
@@ -135,7 +189,12 @@ function VehicleInfo() {
 
   const handleFormSubmit = (e) => {
     e.preventDefault()
-    navigate('/financial-info', { state: { formData } })
+    // Parse the formatted MSRP before sending to next component
+    const formDataToSend = {
+      ...formData,
+      msrp: parseFormattedNumber(formData.msrp)
+    }
+    navigate('/financial-info', { state: { formData: formDataToSend } })
   }
 
   return (
@@ -219,14 +278,13 @@ function VehicleInfo() {
               <div className="input-group">
                 <label>MSRP ($):</label>
                 <input
-                  type="number"
+                  type="text"
                   name="msrp"
                   value={formData.msrp}
                   onChange={handleInputChange}
-                  placeholder="Enter vehicle price"
+                  onBlur={handleInputBlur}
+                  placeholder="e.g., 35,000"
                   required
-                  readOnly={!!formData.trim}
-                  className={formData.trim ? 'readonly-input' : ''}
                 />
               </div>
 

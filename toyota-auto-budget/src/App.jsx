@@ -2,8 +2,6 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import Home from './Home'
 import VehicleInfo from './VehicleInfo'
 import FinancialInfo from './FinancialInfo'
-import PaymentInfo from './PaymentInfo'
-import PlanPreferences from './PlanPreferences'
 import PaymentResults from './PaymentResults'
 import Matchmaker from './Matchmaker'
 import './App.css'
@@ -19,8 +17,6 @@ function App() {
           {/* Multi-Step Flow */}
           <Route path="/vehicle-info" element={<VehicleInfo />} />
           <Route path="/financial-info" element={<FinancialInfo />} />
-          <Route path="/payment-info" element={<PaymentInfo />} />
-          <Route path="/plan-preferences" element={<PlanPreferences />} />
           <Route path="/payment-results" element={<PaymentResults />} />
 
           {/* Optional Branch */}

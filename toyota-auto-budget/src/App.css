@@ -26,6 +26,13 @@ html, body {
   background-color: var(--toyota-light-gray);
 }
 
+/* Page-specific backgrounds */
+body.vehicle-info-page,
+body.financial-info-page {
+  background: linear-gradient(to bottom, #c60a19 0%, #cc0000 50%, #8b0000 100%);
+  min-height: 100vh;
+}
+
 *, *::before, *::after {
   box-sizing: border-box;
 }
@@ -46,6 +53,15 @@ html, body {
   justify-content: center;
   min-height: 50vh;
   gap: 2rem;
+}
+
+/* Container styling for gradient background pages */
+body.vehicle-info-page .container,
+body.financial-info-page .container {
+  background-color: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
 .container h1 {
@@ -1105,15 +1121,43 @@ a {
 
 /* Home Page Full Screen Design */
 .home-fullscreen {
-  width: 100%;
-  min-height: 100vh;
+  width: 100vw;
+  height: 100vh;
   margin: 0;
   padding: 0;
   background-color: #f5f5f5;
   display: flex;
   flex-direction: column;
-  overflow-x: hidden;
+  overflow: hidden;
   box-sizing: border-box;
+}
+
+/* Title Section */
+.home-title-section {
+  position: absolute;
+  top: 5%;
+  left: 40%;
+  transform: translateX(-50%);
+  z-index: 25; /* Above everything */
+  text-align: center;
+  color: white;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+}
+
+.home-main-title {
+  font-size: 6rem;
+  font-weight: bold;
+  margin: 0 0 0.5rem 0;
+  color: #ffffff; /* Toyota red */
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.home-main-tagline {
+  font-size: 1.5rem;
+  margin: 1;
+  color: white;
+  font-style: italic;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
 }
 
 .home-header {
@@ -1236,6 +1280,243 @@ a {
   color: #666;
   line-height: 1.3;
   font-style: italic;
+}
+
+/* Interactive Road Navigation Styles */
+.road-navigation {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.road-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.road-background {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.road-image-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 1;
+  transition: all 0.3s ease;
+}
+
+/* Layer ordering from back to front */
+.road-layer-left {
+  z-index: 1; /* Furthest back */
+}
+
+.road-layer-right {
+  z-index: 2; /* Same level as left */
+}
+
+.road-layer-middle {
+  z-index: 3; /* Top layer to cover any gaps */
+}
+
+.road-image-overlay.emphasized {
+  filter: grayscale(1) brightness(0.7);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.road-link {
+  text-decoration: none;
+  color: inherit;
+}
+
+.road-overlay {
+  position: absolute;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 15; /* Above roads and road images */
+}
+
+/* Specific positioning for each road */
+.road-left {
+  top: 10%;
+  left: 0%;
+  width: 40%;
+  height: 57%;
+}
+
+.road-middle {
+  bottom: 0%;
+  left: 0%;
+  width: 40%;
+  height: 33%;
+}
+
+.road-right {
+  top: 67%;
+  right: 15%;
+  width: 45%;
+  height: 33%;
+}
+
+
+.road-tooltip {
+  position: absolute;
+  background-color: rgba(230, 0, 18, 0.95);
+  color: white;
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  z-index: 10;
+  min-width: 250px;
+  text-align: center;
+  animation: fadeInUp 0.3s ease;
+  backdrop-filter: blur(5px);
+}
+
+.road-tooltip-left {
+  top: 20%;
+  left: 10%;
+}
+
+.road-tooltip-middle {
+  top: 30%;
+  left: 40%;
+  transform: translateX(-50%);
+}
+
+.road-tooltip-right {
+  top: 60%;
+  right: 10%;
+}
+
+.tooltip-title {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  letter-spacing: 1px;
+}
+
+.tooltip-subtitle {
+  font-size: 0.9rem;
+  opacity: 0.9;
+  line-height: 1.3;
+  font-style: italic;
+}
+
+.car-container-road {
+  position: absolute;
+  top: 52%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 20; /* Highest layer - on top of everything */
+  width: 1200px;
+  pointer-events: none; /* Allow clicks to pass through the car */
+}
+
+.home-car-image-road {
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+}
+
+.car-container-top-right {
+  position: absolute;
+  top: 10%;
+  right: 8%;
+  z-index: 10;
+  width: 150px;
+  transform: rotate(15deg); /* Slight rotation for dynamic look */
+}
+
+.home-car-image-top-right {
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+}
+
+.road-tagline {
+  margin-top: 2rem;
+  text-align: center;
+}
+
+.road-tagline p {
+  font-size: 1.5rem;
+  color: #333;
+  line-height: 1.4;
+  font-weight: 500;
+  margin: 0;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive design for road navigation */
+@media (max-width: 768px) {
+  .road-container {
+    max-width: 100%;
+    padding: 0 1rem;
+  }
+  
+  .road-tooltip {
+    min-width: 200px;
+    padding: 0.8rem 1rem;
+  }
+  
+  .tooltip-title {
+    font-size: 1rem;
+  }
+  
+  .tooltip-subtitle {
+    font-size: 0.8rem;
+  }
+  
+  .car-container-road {
+    width: 80px;
+  }
+  
+  .road-tagline p {
+    font-size: 1.2rem;
+  }
+  
+  .road-tooltip-left,
+  .road-tooltip-right {
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  
+  .road-tooltip-left {
+    top: 25%;
+  }
+  
+  .road-tooltip-right {
+    top: 35%;
+  }
 }
 
 /* Form Styling - Toyota Theme */
