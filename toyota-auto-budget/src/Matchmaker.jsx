@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./App.css";
+import rav4 from "./assets/rav4.png";
+
 
 // --- Toyota Progress Bar Component ---
 function ToyotaProgressBar({ step, totalSteps }) {
@@ -62,19 +64,24 @@ function ToyotaProgressBar({ step, totalSteps }) {
             transition: "left 0.6s ease-in-out",
           }}
         >
-          <svg width="80" height="40" viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg">
-            {/* Body */}
-            <rect x="30" y="40" width="120" height="25" rx="5" fill="#EB0A1E" />
-            <polygon points="30,40 50,20 150,20 170,40" fill="#C60A19" />
-            {/* Windows */}
-            <rect x="55" y="25" width="35" height="15" fill="white" opacity="0.9" />
-            <rect x="100" y="25" width="35" height="15" fill="white" opacity="0.9" />
-            {/* Wheels */}
-            <circle cx="55" cy="70" r="10" fill="black" />
-            <circle cx="135" cy="70" r="10" fill="black" />
-            <circle cx="55" cy="70" r="5" fill="gray" />
-            <circle cx="135" cy="70" r="5" fill="gray" />
-          </svg>
+          <div
+            style={{
+              position: "absolute",
+              top: "50%",
+              left: carPosition,
+              transform: "translate(-50%, -50%)",
+              transition: "left 0.6s ease-in-out",
+            }}
+          >
+            <img
+              src={rav4}
+              alt="Toyota RAV4"
+              style={{ width: "100px", height: "auto" }}
+            />
+            <div style={{ fontSize: "10px", color: "#555", textAlign: "center" }}>
+              {Math.round(progress * 100)}%
+            </div>
+          </div>
         </div>
       </div>
     </div>
