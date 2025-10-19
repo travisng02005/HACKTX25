@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import './App.css'
+import toyotaVehicles from './data/toyotaVehicles.json'
 
 function Questionnaire() {
   const navigate = useNavigate()
@@ -51,6 +52,35 @@ function Questionnaire() {
     }))
   }
 
+  const handleModelChange = (e) => {
+    const selectedModel = e.target.value
+    setFormData(prev => ({
+      ...prev,
+      model: selectedModel,
+      trim: '', // Reset trim when model changes
+      msrp: selectedModel ? toyotaVehicles[selectedModel].basePrice.toString() : ''
+    }))
+  }
+
+  const handleTrimChange = (e) => {
+    const selectedTrim = e.target.value
+    const selectedModel = formData.model
+    
+    if (selectedModel && selectedTrim) {
+      const trimData = toyotaVehicles[selectedModel].trims.find(trim => trim.name === selectedTrim)
+      setFormData(prev => ({
+        ...prev,
+        trim: selectedTrim,
+        msrp: trimData ? trimData.price.toString() : prev.msrp
+      }))
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        trim: selectedTrim
+      }))
+    }
+  }
+
   const parseToyotaLink = (url) => {
     try {
       // Extract model/series from the URL
@@ -92,12 +122,28 @@ function Questionnaire() {
         
         const estimatedMSRP = msrpMap[modelName.toLowerCase()] || '35000'
         
-        setFormData(prev => ({
-          ...prev,
-          model: modelName,
-          year: year,
-          msrp: estimatedMSRP
-        }))
+        // Check if model exists in our database
+        const matchedModel = Object.keys(toyotaVehicles).find(
+          model => model.toLowerCase() === modelName.toLowerCase()
+        )
+        
+        if (matchedModel) {
+          setFormData(prev => ({
+            ...prev,
+            model: matchedModel,
+            year: year,
+            trim: '', // Reset trim when setting from link
+            msrp: toyotaVehicles[matchedModel].basePrice.toString()
+          }))
+        } else {
+          // Fallback for models not in database
+          setFormData(prev => ({
+            ...prev,
+            model: modelName,
+            year: year,
+            msrp: estimatedMSRP
+          }))
+        }
         
         setLinkError('')
         return true
@@ -181,25 +227,34 @@ function Questionnaire() {
             <div className="input-row">
               <div className="input-group">
                 <label>Model:</label>
-                <input
-                  type="text"
+                <select
                   name="model"
                   value={formData.model}
-                  onChange={handleInputChange}
-                  placeholder="e.g., RAV4"
+                  onChange={handleModelChange}
                   required
-                />
+                >
+                  <option value="">Select a Model</option>
+                  {Object.keys(toyotaVehicles).map(model => (
+                    <option key={model} value={model}>{model}</option>
+                  ))}
+                </select>
               </div>
               
               <div className="input-group">
                 <label>Trim:</label>
-                <input
-                  type="text"
+                <select
                   name="trim"
                   value={formData.trim}
-                  onChange={handleInputChange}
-                  placeholder="e.g., XLE Hybrid"
-                />
+                  onChange={handleTrimChange}
+                  disabled={!formData.model}
+                >
+                  <option value="">Select a Trim</option>
+                  {formData.model && toyotaVehicles[formData.model].trims.map(trim => (
+                    <option key={trim.name} value={trim.name}>
+                      {trim.name} - ${trim.price.toLocaleString()}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
 
@@ -220,9 +275,13 @@ function Questionnaire() {
                   name="msrp"
                   value={formData.msrp}
                   onChange={handleInputChange}
-                  placeholder="35000"
+                  placeholder="Select model and trim first"
                   required
+                  readOnly={formData.model && formData.trim}
                 />
+                {formData.model && formData.trim && (
+                  <small>Price automatically set based on selected trim</small>
+                )}
               </div>
             </div>
 

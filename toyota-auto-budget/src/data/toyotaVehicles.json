@@ -1,0 +1,129 @@
+{
+  "RAV4": {
+    "category": "SUV",
+    "basePrice": 35000,
+    "trims": [
+      { "name": "LE", "price": 35000, "mpg": "27/35", "features": ["Toyota Safety Sense 2.0", "8-inch touchscreen"] },
+      { "name": "XLE", "price": 38000, "mpg": "27/35", "features": ["Blind spot monitor", "Power liftgate"] },
+      { "name": "XLE Premium", "price": 40000, "mpg": "27/35", "features": ["Panoramic moonroof", "Wireless charging"] },
+      { "name": "Adventure", "price": 42000, "mpg": "25/33", "features": ["AWD standard", "Roof rails", "19-inch wheels"] },
+      { "name": "Limited", "price": 45000, "mpg": "27/35", "features": ["Leather seats", "JBL audio", "Digital rearview mirror"] },
+      { "name": "TRD Off-Road", "price": 43000, "mpg": "25/33", "features": ["TRD suspension", "All-terrain tires", "Multi-terrain select"] },
+      { "name": "Prime SE", "price": 46000, "mpg": "40 MPGe", "features": ["Plug-in hybrid", "6.6 kW onboard charger"] },
+      { "name": "Prime XSE", "price": 49000, "mpg": "38 MPGe", "features": ["19-inch wheels", "Premium audio", "Wireless charging"] }
+    ]
+  },
+  "Camry": {
+    "category": "Sedan",
+    "basePrice": 26000,
+    "trims": [
+      { "name": "LE", "price": 26000, "mpg": "28/39", "features": ["Toyota Safety Sense 2.0", "7-inch touchscreen"] },
+      { "name": "SE", "price": 28000, "mpg": "28/39", "features": ["Sport suspension", "18-inch wheels", "Paddle shifters"] },
+      { "name": "XLE", "price": 31000, "mpg": "28/39", "features": ["Leather seats", "Wireless charging", "Premium audio"] },
+      { "name": "XSE", "price": 34000, "mpg": "28/39", "features": ["Sport styling", "19-inch wheels", "Head-up display"] },
+      { "name": "TRD", "price": 36000, "mpg": "22/32", "features": ["TRD suspension", "Cat-back exhaust", "Brembo brakes"] },
+      { "name": "Hybrid LE", "price": 29000, "mpg": "51/53", "features": ["Hybrid powertrain", "Eco modes"] },
+      { "name": "Hybrid SE", "price": 31000, "mpg": "43/44", "features": ["Sport hybrid tuning", "18-inch wheels"] },
+      { "name": "Hybrid XLE", "price": 34000, "mpg": "44/47", "features": ["Luxury hybrid", "Premium interior"] },
+      { "name": "Hybrid XSE", "price": 37000, "mpg": "44/47", "features": ["Performance hybrid", "Sport styling"] }
+    ]
+  },
+  "Corolla": {
+    "category": "Sedan",
+    "basePrice": 24000,
+    "trims": [
+      { "name": "L", "price": 24000, "mpg": "32/41", "features": ["Toyota Safety Sense 2.0", "6.1-inch touchscreen"] },
+      { "name": "LE", "price": 25000, "mpg": "31/40", "features": ["CVT transmission", "16-inch wheels"] },
+      { "name": "SE", "price": 27000, "mpg": "31/40", "features": ["Sport styling", "18-inch wheels", "Paddle shifters"] },
+      { "name": "XLE", "price": 28000, "mpg": "32/41", "features": ["Premium interior", "Wireless charging"] },
+      { "name": "XSE", "price": 30000, "mpg": "31/40", "features": ["Sport suspension", "Premium audio"] },
+      { "name": "Hybrid LE", "price": 26000, "mpg": "53/52", "features": ["Hybrid powertrain", "Eco display"] },
+      { "name": "Hybrid SE", "price": 28000, "mpg": "53/52", "features": ["Sport hybrid styling", "17-inch wheels"] }
+    ]
+  },
+  "Highlander": {
+    "category": "SUV",
+    "basePrice": 42000,
+    "trims": [
+      { "name": "L", "price": 42000, "mpg": "21/29", "features": ["3-row seating", "8-inch touchscreen"] },
+      { "name": "LE", "price": 44000, "mpg": "21/29", "features": ["Blind spot monitor", "Roof rails"] },
+      { "name": "XLE", "price": 47000, "mpg": "21/29", "features": ["Leather seats", "Power liftgate"] },
+      { "name": "Limited", "price": 52000, "mpg": "21/28", "features": ["Premium JBL audio", "Panoramic moonroof"] },
+      { "name": "Platinum", "price": 56000, "mpg": "21/28", "features": ["Captain's chairs", "Digital rearview mirror"] },
+      { "name": "Hybrid LE", "price": 46000, "mpg": "36/35", "features": ["Hybrid AWD", "Eco modes"] },
+      { "name": "Hybrid XLE", "price": 49000, "mpg": "36/35", "features": ["Hybrid luxury features"] },
+      { "name": "Hybrid Limited", "price": 54000, "mpg": "35/35", "features": ["Premium hybrid package"] },
+      { "name": "Hybrid Platinum", "price": 58000, "mpg": "35/35", "features": ["Top-tier hybrid luxury"] }
+    ]
+  },
+  "Prius": {
+    "category": "Hatchback",
+    "basePrice": 30000,
+    "trims": [
+      { "name": "L Eco", "price": 30000, "mpg": "58/53", "features": ["Most efficient trim", "15-inch wheels"] },
+      { "name": "LE", "price": 32000, "mpg": "54/50", "features": ["Standard features", "Toyota Safety Sense 2.0"] },
+      { "name": "XLE", "price": 35000, "mpg": "54/50", "features": ["Premium interior", "Wireless charging"] },
+      { "name": "Limited", "price": 38000, "mpg": "54/50", "features": ["Leather seats", "JBL premium audio"] },
+      { "name": "Prime LE", "price": 36000, "mpg": "127 MPGe", "features": ["Plug-in hybrid", "3.3 kW onboard charger"] },
+      { "name": "Prime XLE", "price": 39000, "mpg": "114 MPGe", "features": ["Premium plug-in features"] },
+      { "name": "Prime Limited", "price": 42000, "mpg": "114 MPGe", "features": ["Luxury plug-in hybrid"] }
+    ]
+  },
+  "Sienna": {
+    "category": "Minivan",
+    "basePrice": 45000,
+    "trims": [
+      { "name": "LE", "price": 45000, "mpg": "36/36", "features": ["Hybrid standard", "8-passenger seating"] },
+      { "name": "XLE", "price": 48000, "mpg": "36/36", "features": ["Power sliding doors", "Wireless charging"] },
+      { "name": "XSE", "price": 52000, "mpg": "36/36", "features": ["Sport styling", "20-inch wheels"] },
+      { "name": "Limited", "price": 55000, "mpg": "36/36", "features": ["Leather captain's chairs", "Premium JBL audio"] },
+      { "name": "Platinum", "price": 58000, "mpg": "36/36", "features": ["Ultra-luxury features", "Ottoman seats"] }
+    ]
+  },
+  "Tacoma": {
+    "category": "Truck",
+    "basePrice": 38000,
+    "trims": [
+      { "name": "SR", "price": 38000, "mpg": "20/23", "features": ["Regular cab available", "6-speed manual"] },
+      { "name": "SR5", "price": 41000, "mpg": "20/23", "features": ["Double cab", "Toyota Safety Sense P"] },
+      { "name": "TRD Sport", "price": 45000, "mpg": "19/22", "features": ["Sport suspension", "Hood scoop"] },
+      { "name": "TRD Off-Road", "price": 47000, "mpg": "19/22", "features": ["Locking rear differential", "Multi-terrain select"] },
+      { "name": "Limited", "price": 50000, "mpg": "20/23", "features": ["Leather seats", "JBL premium audio"] },
+      { "name": "TRD Pro", "price": 52000, "mpg": "17/20", "features": ["Fox shocks", "TRD Pro styling"] }
+    ]
+  },
+  "Tundra": {
+    "category": "Truck",
+    "basePrice": 50000,
+    "trims": [
+      { "name": "SR", "price": 50000, "mpg": "18/24", "features": ["Regular cab", "3.5L twin-turbo V6"] },
+      { "name": "SR5", "price": 53000, "mpg": "18/24", "features": ["Double cab", "Toyota Safety Sense 2.0"] },
+      { "name": "Limited", "price": 58000, "mpg": "18/24", "features": ["Leather seats", "14-inch touchscreen"] },
+      { "name": "Platinum", "price": 62000, "mpg": "18/24", "features": ["Premium leather", "JBL audio"] },
+      { "name": "1794 Edition", "price": 65000, "mpg": "18/24", "features": ["Western-themed interior", "20-inch wheels"] },
+      { "name": "TRD Pro", "price": 68000, "mpg": "17/22", "features": ["Fox shocks", "33-inch tires"] },
+      { "name": "Capstone", "price": 72000, "mpg": "18/24", "features": ["Ultra-luxury", "Semi-aniline leather"] }
+    ]
+  },
+  "4Runner": {
+    "category": "SUV",
+    "basePrice": 43000,
+    "trims": [
+      { "name": "SR5", "price": 43000, "mpg": "16/19", "features": ["4WD available", "Running boards"] },
+      { "name": "SR5 Premium", "price": 46000, "mpg": "16/19", "features": ["Leather seats", "Navigation"] },
+      { "name": "TRD Off-Road", "price": 49000, "mpg": "16/19", "features": ["Locking rear differential", "Crawl control"] },
+      { "name": "TRD Off-Road Premium", "price": 52000, "mpg": "16/19", "features": ["Premium off-road package"] },
+      { "name": "Limited", "price": 54000, "mpg": "16/19", "features": ["Full-time 4WD", "XREAS suspension"] },
+      { "name": "TRD Pro", "price": 56000, "mpg": "16/19", "features": ["Fox shocks", "TRD Pro wheels"] }
+    ]
+  },
+  "Corolla Cross": {
+    "category": "SUV",
+    "basePrice": 28000,
+    "trims": [
+      { "name": "L", "price": 28000, "mpg": "31/33", "features": ["Toyota Safety Sense 2.0", "7-inch touchscreen"] },
+      { "name": "LE", "price": 30000, "mpg": "31/33", "features": ["All-weather floor liners", "Roof rails"] },
+      { "name": "XLE", "price": 32000, "mpg": "31/33", "features": ["Blind spot monitor", "Power liftgate"] }
+    ]
+  }
+}

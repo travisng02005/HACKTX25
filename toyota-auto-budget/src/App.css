@@ -1277,6 +1277,20 @@ a {
   background-color: white;
   color: var(--toyota-dark-gray);
   font-weight: normal;
+  cursor: pointer;
+}
+
+.input-group select:disabled {
+  background-color: #f5f5f5;
+  color: var(--toyota-medium-gray);
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.input-group select option {
+  color: var(--toyota-dark-gray);
+  background-color: white;
+  padding: 0.5rem;
 }
 
 .input-group input:focus,
