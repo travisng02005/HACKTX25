@@ -369,7 +369,10 @@ function PaymentResults() {
 
       {/* 3D RAV4 Model */}
       <div className="model-section">
-        <h2>Your {formData.model || 'Toyota RAV4'}{formData.trim ? ` ${formData.trim}` : ''}</h2>
+        <h2 style={{ color: '#d32f2f' }}>
+          Your {formData.model || 'Toyota RAV4'}
+          {formData.trim ? ` ${formData.trim}` : ''}
+        </h2>
         <div className="model-viewer">
           <Canvas camera={{ position: [50, 30, 50], fov: 75 }}>
             <ambientLight intensity={0.8} />

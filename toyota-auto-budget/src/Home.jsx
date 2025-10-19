@@ -10,8 +10,8 @@ function Home() {
     <div className="home-fullscreen">
       {/* Red Header */}
       <div className="home-header">
-        <h1 className="home-welcome">Welcome to</h1>
-        <h2 className="home-title">TOYOTA AUTO BUDGET</h2>
+        <h1 className="home-title">JourneyFi</h1>
+        <h2 className="home-slogan">Your Road to Smarter Car Ownership.</h2>
       </div>
 
       {/* Main Content Area */}
@@ -22,7 +22,7 @@ function Home() {
             <img src="/src/assets/3_4th RAV4 1.png" alt="Toyota RAV4" className="home-car-image" />
           </div>
           <p className="home-tagline">
-            Chose the road that<br />
+            Choose the road that<br />
             best suits your need!
           </p>
         </div>
