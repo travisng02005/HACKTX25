@@ -78,7 +78,7 @@ function ToyotaProgressBar({ step, totalSteps }) {
               alt="Toyota RAV4"
               style={{ width: "100px", height: "auto" }}
             />
-            <div style={{ fontSize: "10px", color: "#555", textAlign: "center" }}>
+            <div style={{ fontSize: "10px", color: "#ffffff", textAlign: "center" }}>
               {Math.round(progress * 100)}%
             </div>
           </div>
@@ -226,16 +226,41 @@ function Matchmaker() {
           </div>
         </div>
       ) : (
-        <div className="slider-row">
-          <span className="slider-label-text">Strongly Disagree</span>
-          <input
-            type="range"
-            min="1"
-            max="7"
-            value={answers[currentQuestion.id] || 4}
-            onChange={(e) => handleAnswer(Number(e.target.value))}
-          />
-          <span className="slider-label-text">Strongly Agree</span>
+        <div className="edit-group" style={{ width: "100%", maxWidth: "600px", margin: "2rem auto" }}>
+          <h4>Rate your agreement</h4>
+          <div className="input-group">
+            <label>
+              {answers[currentQuestion.id]
+                ? `Your Response: ${(() => {
+                    const value = answers[currentQuestion.id];
+                    const responses = {
+                      1: "Strongly Disagree",
+                      2: "Disagree",
+                      3: "Somewhat Disagree",
+                      4: "Neutral",
+                      5: "Somewhat Agree",
+                      6: "Agree",
+                      7: "Strongly Agree",
+                    };
+                    return responses[value] || "Neutral";
+                  })()}`
+                : "Move the slider to answer"}
+            </label>
+
+            <div className="slider-container">
+              <span className="slider-label">Strongly Disagree</span>
+              <input
+                type="range"
+                min="1"
+                max="7"
+                step="1"
+                value={answers[currentQuestion.id] || 4}
+                onChange={(e) => handleAnswer(Number(e.target.value))}
+                className="form-slider"
+              />
+              <span className="slider-label">Strongly Agree</span>
+            </div>
+          </div>
         </div>
       )}
 
