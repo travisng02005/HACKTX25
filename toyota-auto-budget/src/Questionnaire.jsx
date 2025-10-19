@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import './App.css'
 import toyotaVehicles from './data/toyotaVehicles.json'
@@ -6,6 +6,7 @@ import toyotaVehicles from './data/toyotaVehicles.json'
 function Questionnaire() {
   const navigate = useNavigate()
   const location = useLocation()
+  const option1Ref = useRef(null)
   
   // Get pre-filled data from navigation state (from Matchmaker)
   const prefilledData = location.state?.prefilledData || {}
@@ -88,72 +89,49 @@ function Questionnaire() {
       const seriesIndex = urlParts.indexOf('series')
       const yearIndex = urlParts.indexOf('year')
       
+      let model = ''
+      let year = ''
+      
       if (seriesIndex !== -1 && seriesIndex + 1 < urlParts.length) {
-        const series = urlParts[seriesIndex + 1]
-        const year = yearIndex !== -1 && yearIndex + 1 < urlParts.length ? urlParts[yearIndex + 1] : '2026'
+        const seriesName = urlParts[seriesIndex + 1].toLowerCase()
         
-        // Convert series name to readable model name
-        const modelMap = {
-          'corollacross': 'Corolla Cross',
-          'corolla': 'Corolla',
-          'camry': 'Camry',
+        // Map URL series names to our database models
+        const seriesMapping = {
           'rav4': 'RAV4',
+          'camry': 'Camry',
+          'corolla': 'Corolla',
           'highlander': 'Highlander',
           'prius': 'Prius',
           'sienna': 'Sienna',
           'tacoma': 'Tacoma',
-          'tundra': 'Tundra'
+          'tundra': 'Tundra',
+          '4runner': '4Runner',
+          'corolla-cross': 'Corolla Cross',
+          'corollacross': 'Corolla Cross'  // Handle both formats
         }
         
-        const modelName = modelMap[series.toLowerCase()] || series
-        
-        // Estimated MSRP based on model (these are approximate 2026 prices)
-        const msrpMap = {
-          'corolla cross': '28000',
-          'corolla': '26000',
-          'camry': '32000',
-          'rav4': '35000',
-          'highlander': '42000',
-          'prius': '30000',
-          'sienna': '45000',
-          'tacoma': '38000',
-          'tundra': '50000'
-        }
-        
-        const estimatedMSRP = msrpMap[modelName.toLowerCase()] || '35000'
-        
-        // Check if model exists in our database
-        const matchedModel = Object.keys(toyotaVehicles).find(
-          model => model.toLowerCase() === modelName.toLowerCase()
-        )
-        
-        if (matchedModel) {
-          setFormData(prev => ({
-            ...prev,
-            model: matchedModel,
-            year: year,
-            trim: '', // Reset trim when setting from link
-            msrp: toyotaVehicles[matchedModel].basePrice.toString()
-          }))
-        } else {
-          // Fallback for models not in database
-          setFormData(prev => ({
-            ...prev,
-            model: modelName,
-            year: year,
-            msrp: estimatedMSRP
-          }))
-        }
-        
+        model = seriesMapping[seriesName] || ''
+      }
+      
+      if (yearIndex !== -1 && yearIndex + 1 < urlParts.length) {
+        year = urlParts[yearIndex + 1]
+      }
+      
+      if (model) {
+        setFormData(prev => ({
+          ...prev,
+          model,
+          year: year || prev.year,
+          msrp: toyotaVehicles[model]?.basePrice.toString() || prev.msrp,
+          trim: '' // Reset trim when parsing new link
+        }))
         setLinkError('')
-        return true
+        setToyotaLink('')
       } else {
-        setLinkError('Could not parse Toyota configurator link. Please check the URL format.')
-        return false
+        setLinkError('Could not extract vehicle information from this link.')
       }
     } catch (error) {
-      setLinkError('Invalid URL format. Please paste a valid Toyota configurator link.')
-      return false
+      setLinkError('Invalid Toyota configurator link format.')
     }
   }
 
@@ -161,6 +139,13 @@ function Questionnaire() {
     e.preventDefault()
     if (toyotaLink.includes('toyota.com/configurator')) {
       parseToyotaLink(toyotaLink)
+      // Scroll to Option 2 (Manual Form) after parsing
+      if (option1Ref.current) {
+        option1Ref.current.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'start' 
+        })
+      }
     } else {
       setLinkError('Please paste a valid Toyota configurator link.')
     }
@@ -197,9 +182,15 @@ function Questionnaire() {
         </div>
       )}
       
-      {/* Toyota Link Parser Section */}
+      {/* Toyota Link Parser Section - Now Option 1 */}
       <div className="form-section">
-        <h3>Option 1: Paste Your Toyota Build Link</h3>
+        <h3>Option 1: Paste Your <span 
+          className="toyota-build-link" 
+          onMouseClick={() => window.open('https://www.toyota.com/configurator/', '_blank')}
+          title="Click to open Toyota Build & Price website"
+        >
+          Toyota Build
+        </span> Link</h3>
         <form onSubmit={handleLinkSubmit} className="link-form">
           <input
             type="url"
@@ -215,8 +206,8 @@ function Questionnaire() {
 
       <div className="divider">OR</div>
 
-      {/* Manual Form Section */}
-      <div className="form-section">
+      {/* Manual Form Section - Now Option 2 */}
+      <div className="form-section" ref={option1Ref}>
         <h3>Option 2: Enter Vehicle Details Manually</h3>
         <form onSubmit={handleFormSubmit} className="questionnaire-form">
           
@@ -249,10 +240,8 @@ function Questionnaire() {
                   disabled={!formData.model}
                 >
                   <option value="">Select a Trim</option>
-                  {formData.model && toyotaVehicles[formData.model].trims.map(trim => (
-                    <option key={trim.name} value={trim.name}>
-                      {trim.name} - ${trim.price.toLocaleString()}
-                    </option>
+                  {formData.model && toyotaVehicles[formData.model]?.trims.map(trim => (
+                    <option key={trim.name} value={trim.name}>{trim.name}</option>
                   ))}
                 </select>
               </div>
@@ -260,32 +249,35 @@ function Questionnaire() {
 
             <div className="input-row">
               <div className="input-group">
-                <label>Year:</label>
-                <select name="year" value={formData.year} onChange={handleInputChange}>
-                  <option value="2026">2026</option>
-                  <option value="2025">2025</option>
-                  <option value="2024">2024</option>
-                </select>
-              </div>
-              
-              <div className="input-group">
-                <label>MSRP ($):</label>
+                <label>MSRP:</label>
                 <input
                   type="number"
                   name="msrp"
                   value={formData.msrp}
                   onChange={handleInputChange}
-                  placeholder="Select model and trim first"
+                  placeholder="Vehicle MSRP"
                   required
-                  readOnly={formData.model && formData.trim}
+                  readOnly={!!formData.trim}
+                  className={formData.trim ? 'readonly-input' : ''}
                 />
-                {formData.model && formData.trim && (
-                  <small>Price automatically set based on selected trim</small>
-                )}
+              </div>
+
+              <div className="input-group">
+                <label>Year:</label>
+                <select
+                  name="year"
+                  value={formData.year}
+                  onChange={handleInputChange}
+                >
+                  <option value="2026">2026</option>
+                  <option value="2025">2025</option>
+                  <option value="2024">2024</option>
+                  <option value="2023">2023</option>
+                </select>
               </div>
             </div>
 
-            <div className="input-group">
+            <div className="input-group full-width">
               <label>Color (Optional):</label>
               <input
                 type="text"
@@ -307,6 +299,8 @@ function Questionnaire() {
           </div>
         </form>
       </div>
+
+
     </div>
   )
 }

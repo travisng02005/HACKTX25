@@ -1565,3 +1565,19 @@ a {
     margin: 0.5rem 0;
   }
 }
+
+/* Toyota Build Link Styling */
+.toyota-build-link {
+  color: var(--toyota-red);
+  text-decoration: underline;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: bold;
+}
+
+.toyota-build-link:hover {
+  color: #8B0000;
+  text-decoration: none;
+  text-shadow: 0 0 5px rgba(235, 10, 30, 0.3);
+  transform: scale(1.05);
+}
