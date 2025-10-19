@@ -2,7 +2,11 @@ import { useState, useEffect } from 'react'
 import { useLocation, useNavigate, Link } from 'react-router-dom'
 import jsPDF from 'jspdf'
 import html2canvas from 'html2canvas'
+import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js'
+import { Pie } from 'react-chartjs-2'
 import './App.css'
+
+ChartJS.register(ArcElement, Tooltip, Legend)
 
 function PlanSummary() {
   const location = useLocation()
@@ -66,6 +70,92 @@ function PlanSummary() {
     }
   }
 
+  // Calculate budget breakdown and chart data
+  const calculateBudgetBreakdown = () => {
+    if (!vehicleData.income || !planData.monthlyPayment) {
+      return null
+    }
+
+    // Convert annual income to monthly after-tax income (rough estimate: 75% after taxes)
+    const annualIncome = parseFloat(vehicleData.income.toString().replace(/,/g, '')) || 0
+    const monthlyAfterTaxIncome = (annualIncome * 0.75) / 12
+
+    // Get monthly budget values or use defaults
+    const getMonthlyBudget = (budgetField, defaultValue) => {
+      const value = vehicleData[budgetField]
+      if (value && value !== '') {
+        return parseFloat(value.toString().replace(/,/g, ''))
+      }
+      return defaultValue
+    }
+
+    const monthlyBudgets = {
+      housing: getMonthlyBudget('housingBudget', 1200),
+      food: getMonthlyBudget('foodBudget', 400),
+      utilities: getMonthlyBudget('utilitiesBudget', 150),
+      other: getMonthlyBudget('otherBudget', 300)
+    }
+
+    const totalMonthlyExpenses = Object.values(monthlyBudgets).reduce((sum, val) => sum + val, 0)
+    const carPayment = parseFloat(planData.monthlyPayment)
+    const totalWithCar = totalMonthlyExpenses + carPayment
+    const remainingIncome = monthlyAfterTaxIncome - totalWithCar
+
+    // Check if user has enough income
+    if (remainingIncome < 0) {
+      return {
+        hasEnoughIncome: false,
+        deficit: Math.abs(remainingIncome),
+        monthlyAfterTaxIncome
+      }
+    }
+
+    return {
+      hasEnoughIncome: true,
+      monthlyAfterTaxIncome,
+      carPayment,
+      totalMonthlyExpenses,
+      remainingIncome,
+      chartData: {
+        labels: ['Car Payment', 'Other Expenses', 'Remaining Income'],
+        datasets: [{
+          data: [carPayment, totalMonthlyExpenses, remainingIncome],
+          backgroundColor: ['#e60012', '#ffffff', '#666666'],
+          borderColor: ['#cc0000', '#cccccc', '#444444'],
+          borderWidth: 2
+        }]
+      },
+      chartOptions: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              padding: 15,
+              font: {
+                size: 12
+              }
+            }
+          },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                const label = context.label || ''
+                const value = context.parsed
+                const total = context.dataset.data.reduce((sum, val) => sum + val, 0)
+                const percentage = ((value / total) * 100).toFixed(1)
+                return `${label}: $${value.toLocaleString()} (${percentage}%)`
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  const budgetBreakdown = calculateBudgetBreakdown()
+
   if (!planData || !vehicleData) {
     return <div>Loading...</div>
   }
@@ -92,8 +182,8 @@ function PlanSummary() {
 
           {/* Main Content Grid */}
           <div className="plan-summary-grid">
-            {/* Left Column: Vehicle & Financial Info */}
-            <div className="info-column">
+            {/* Top Row: Vehicle & Financial Info */}
+            <div className="info-row">
               {/* Vehicle Information */}
               <div className="summary-section compact">
                 <h3>Vehicle Details</h3>
@@ -140,8 +230,9 @@ function PlanSummary() {
               </div>
             </div>
 
-            {/* Right Column: Selected Plan */}
-            <div className="plan-column">
+            {/* Bottom Row: Selected Plan and Budget Chart */}
+            <div className="plan-row">
+              {/* Selected Plan */}
               <div className="plan-highlight-compact">
                 <h2>Selected {planData.planType === 'loan' ? 'Financing' : 'Lease'} Plan</h2>
                 <div className="monthly-payment-compact">
@@ -163,6 +254,53 @@ function PlanSummary() {
                     )}
                   </div>
                 </div>
+              </div>
+
+              {/* Budget Breakdown Chart */}
+              <div className="budget-chart-section">
+                <h3>Monthly Budget Impact</h3>
+                {budgetBreakdown ? (
+                  budgetBreakdown.hasEnoughIncome ? (
+                    <div className="chart-container">
+                      <Pie data={budgetBreakdown.chartData} options={budgetBreakdown.chartOptions} />
+                      <div className="chart-legend-large">
+                        <div className="legend-item">
+                          <div className="legend-color red"></div>
+                          <span>Car Payment</span>
+                        </div>
+                        <div className="legend-item">
+                          <div className="legend-color white"></div>
+                          <span>Monthly Expenses</span>
+                        </div>
+                        <div className="legend-item">
+                          <div className="legend-color gray"></div>
+                          <span>Remaining</span>
+                        </div>
+                      </div>
+                      <div className="budget-summary">
+                        <div className="budget-item">
+                          <span>After-tax Income:</span>
+                          <span>${budgetBreakdown.monthlyAfterTaxIncome.toLocaleString()}</span>
+                        </div>
+                        <div className="budget-item remaining">
+                          <span>Remaining:</span>
+                          <span>${budgetBreakdown.remainingIncome.toLocaleString()}</span>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="insufficient-income">
+                      <p>⚠️ <strong>Insufficient Monthly Income</strong></p>
+                      <p>Your estimated monthly expenses exceed your after-tax income by <strong>${budgetBreakdown.deficit.toLocaleString()}</strong>.</p>
+                      <p>Consider a longer loan term, higher down payment, or adjusting your budget.</p>
+                    </div>
+                  )
+                ) : (
+                  <div className="no-income-data">
+                    <p>💡 <strong>Budget Analysis Unavailable</strong></p>
+                    <p>Enter your annual income and monthly budget in the previous steps to see your personalized budget breakdown.</p>
+                  </div>
+                )}
               </div>
             </div>
           </div>

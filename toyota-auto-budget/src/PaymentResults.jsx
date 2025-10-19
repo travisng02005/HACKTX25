@@ -2,9 +2,13 @@ import { useState, useEffect, useRef } from 'react'
 import { useLocation, useNavigate, Link } from 'react-router-dom'
 import { Canvas } from '@react-three/fiber'
 import { OrbitControls, Environment } from '@react-three/drei'
+import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js'
+import { Pie } from 'react-chartjs-2'
 import RAV4Model from './RAV4Model'
 import toyotaVehicles from './data/toyotaVehicles.json'
 import './App.css'
+
+ChartJS.register(ArcElement, Tooltip, Legend)
 
 function PaymentResults() {
   const location = useLocation()
@@ -203,6 +207,84 @@ function PaymentResults() {
   const parseFormattedNumber = (value) => {
     if (!value) return ''
     return value.toString().replace(/,/g, '')
+  }
+
+  // Calculate budget breakdown for a given monthly payment
+  const calculatePlanBudgetBreakdown = (monthlyPayment) => {
+    if (!formData.income || !monthlyPayment) {
+      return null
+    }
+
+    // Convert annual income to monthly after-tax income (rough estimate: 75% after taxes)
+    const annualIncome = parseFloat(formData.income.toString().replace(/,/g, '')) || 0
+    const monthlyAfterTaxIncome = (annualIncome * 0.75) / 12
+
+    // Get monthly budget values or use defaults
+    const getMonthlyBudget = (budgetField, defaultValue) => {
+      const value = formData[budgetField]
+      if (value && value !== '') {
+        return parseFloat(value.toString().replace(/,/g, ''))
+      }
+      return defaultValue
+    }
+
+    const monthlyBudgets = {
+      housing: getMonthlyBudget('housingBudget', 1200),
+      food: getMonthlyBudget('foodBudget', 400),
+      utilities: getMonthlyBudget('utilitiesBudget', 150),
+      other: getMonthlyBudget('otherBudget', 300)
+    }
+
+    const totalMonthlyExpenses = Object.values(monthlyBudgets).reduce((sum, val) => sum + val, 0)
+    const carPayment = parseFloat(monthlyPayment)
+    const totalWithCar = totalMonthlyExpenses + carPayment
+    const remainingIncome = monthlyAfterTaxIncome - totalWithCar
+
+    // Check if user has enough income
+    if (remainingIncome < 0) {
+      return {
+        hasEnoughIncome: false,
+        deficit: Math.abs(remainingIncome),
+        monthlyAfterTaxIncome
+      }
+    }
+
+    return {
+      hasEnoughIncome: true,
+      monthlyAfterTaxIncome,
+      carPayment,
+      totalMonthlyExpenses,
+      remainingIncome,
+      chartData: {
+        labels: ['Car Payment', 'Other Expenses', 'Remaining Income'],
+        datasets: [{
+          data: [carPayment, totalMonthlyExpenses, remainingIncome],
+          backgroundColor: ['#e60012', '#ffffff', '#666666'],
+          borderColor: ['#cc0000', '#cccccc', '#444444'],
+          borderWidth: 1.5
+        }]
+      },
+      chartOptions: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: false // Hide legend to save space
+          },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                const label = context.label || ''
+                const value = context.parsed
+                const total = context.dataset.data.reduce((sum, val) => sum + val, 0)
+                const percentage = ((value / total) * 100).toFixed(1)
+                return `${label}: $${value.toLocaleString()} (${percentage}%)`
+              }
+            }
+          }
+        }
+      }
+    }
   }
 
   const calculatePayments = () => {
@@ -746,6 +828,51 @@ function PaymentResults() {
                     <span>{plan.termLength} months</span>
                   </div>
                 </div>
+
+                {/* Budget Impact Chart */}
+                <div className="plan-chart-section">
+                  {(() => {
+                    const budgetBreakdown = calculatePlanBudgetBreakdown(plan.monthlyPayment)
+                    if (!budgetBreakdown) {
+                      return (
+                        <div className="no-chart-data">
+                          <span>💡 Add income & budget data above to see budget impact</span>
+                        </div>
+                      )
+                    }
+                    if (!budgetBreakdown.hasEnoughIncome) {
+                      return (
+                        <div className="insufficient-income-mini">
+                          <span>⚠️ Exceeds budget by ${budgetBreakdown.deficit.toLocaleString()}</span>
+                        </div>
+                      )
+                    }
+                    return (
+                      <div className="mini-chart-container">
+                        <Pie data={budgetBreakdown.chartData} options={budgetBreakdown.chartOptions} />
+                        <div className="chart-label">Budget Impact</div>
+                        <div className="chart-legend">
+                          <div className="legend-item">
+                            <div className="legend-color red"></div>
+                            <span>Car Payment</span>
+                          </div>
+                          <div className="legend-item">
+                            <div className="legend-color white"></div>
+                            <span>Monthly Expenses</span>
+                          </div>
+                          <div className="legend-item">
+                            <div className="legend-color gray"></div>
+                            <span>Remaining</span>
+                          </div>
+                        </div>
+                        <div className="remaining-amount">
+                          Remaining: <strong>${budgetBreakdown.remainingIncome.toLocaleString()}</strong>
+                        </div>
+                      </div>
+                    )
+                  })()}
+                </div>
+
                 <button 
                   className="select-plan-btn"
                   onClick={() => handlePlanSelection({
@@ -788,6 +915,51 @@ function PaymentResults() {
                     <span>{plan.termLength} months</span>
                   </div>
                 </div>
+
+                {/* Budget Impact Chart */}
+                <div className="plan-chart-section">
+                  {(() => {
+                    const budgetBreakdown = calculatePlanBudgetBreakdown(plan.monthlyPayment)
+                    if (!budgetBreakdown) {
+                      return (
+                        <div className="no-chart-data">
+                          <span>💡 Add income & budget data above to see budget impact</span>
+                        </div>
+                      )
+                    }
+                    if (!budgetBreakdown.hasEnoughIncome) {
+                      return (
+                        <div className="insufficient-income-mini">
+                          <span>⚠️ Exceeds budget by ${budgetBreakdown.deficit.toLocaleString()}</span>
+                        </div>
+                      )
+                    }
+                    return (
+                      <div className="mini-chart-container">
+                        <Pie data={budgetBreakdown.chartData} options={budgetBreakdown.chartOptions} />
+                        <div className="chart-label">Budget Impact</div>
+                        <div className="chart-legend">
+                          <div className="legend-item">
+                            <div className="legend-color red"></div>
+                            <span>Car Payment</span>
+                          </div>
+                          <div className="legend-item">
+                            <div className="legend-color white"></div>
+                            <span>Monthly Expenses</span>
+                          </div>
+                          <div className="legend-item">
+                            <div className="legend-color gray"></div>
+                            <span>Remaining</span>
+                          </div>
+                        </div>
+                        <div className="remaining-amount">
+                          Remaining: <strong>${budgetBreakdown.remainingIncome.toLocaleString()}</strong>
+                        </div>
+                      </div>
+                    )
+                  })()}
+                </div>
+
                 <button 
                   className="select-plan-btn"
                   onClick={() => handlePlanSelection({

@@ -2301,17 +2301,91 @@ a {
   flex: 1;
 }
 
-.info-column {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
+.info-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
 }
 
-.plan-column {
+.plan-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  align-items: start;
+}
+
+.budget-chart-section {
+  background: #f8f9fa;
+  border-radius: 8px;
+  border-left: 3px solid var(--toyota-red);
+  padding: 0.75rem;
+}
+
+.budget-chart-section h3 {
+  color: var(--toyota-red);
+  margin: 0 0 0.75rem 0;
+  font-size: 1rem;
+  text-align: center;
+}
+
+.chart-container {
+  height: 200px;
+  width: 100%;
+  position: relative;
+  margin-bottom: 0.75rem;
+}
+
+.budget-summary {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-top: 0.5rem;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.8rem;
+}
+
+.budget-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.25rem 0;
+}
+
+.budget-item.remaining {
+  font-weight: bold;
+  color: var(--toyota-red);
+  border-top: 1px solid #ddd;
+  padding-top: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+.insufficient-income {
+  text-align: center;
+  padding: 1rem;
+  background: #fff3cd;
+  border: 1px solid #ffeaa7;
+  border-radius: 6px;
+  color: #856404;
+}
+
+.insufficient-income p {
+  margin: 0.25rem 0;
+  font-size: 0.85rem;
+}
+
+.insufficient-income strong {
+  color: #721c24;
+}
+
+.no-income-data {
+  text-align: center;
+  padding: 1rem;
+  background: #e7f3ff;
+  border: 1px solid #b3d9ff;
+  border-radius: 6px;
+  color: #0c5aa6;
+}
+
+.no-income-data p {
+  margin: 0.25rem 0;
+  font-size: 0.85rem;
 }
 
 .summary-section.compact {
@@ -2454,62 +2528,244 @@ a {
 @media (max-width: 768px) {
   .plan-summary-overlay {
     padding: 1rem;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
   }
   
   .plan-summary-content {
-    max-height: 90vh;
-    padding: 1rem;
+    max-height: 95vh;
+    padding: 0.75rem;
     max-width: 95%;
+    overflow-y: auto;
   }
   
   .plan-summary-content h1 {
-    font-size: 1.3rem;
-    margin: 0 0 0.75rem 0;
+    font-size: 1.2rem;
+    margin: 0 0 0.5rem 0;
   }
   
   .plan-summary-grid {
-    gap: 0.75rem;
+    gap: 0.5rem;
+  }
+  
+  .info-row,
+  .plan-row {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
   }
   
   .plan-highlight-compact {
-    padding: 1rem;
+    padding: 0.75rem;
+    margin-bottom: 0.5rem;
   }
   
   .monthly-payment-compact .amount {
-    font-size: 1.7rem;
+    font-size: 1.5rem;
+  }
+  
+  .chart-container {
+    height: 150px;
+  }
+  
+  .budget-chart-section {
+    padding: 0.5rem;
+  }
+  
+  .budget-chart-section h3 {
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
   }
   
   .action-buttons-compact {
     flex-direction: column;
     align-items: center;
-    gap: 0.5rem;
-    margin-top: 0.75rem;
+    gap: 0.4rem;
+    margin-top: 0.5rem;
   }
   
   .pdf-button-compact,
   .nav-button-compact {
     width: 100%;
-    max-width: 200px;
-    padding: 0.5rem 1rem;
-    font-size: 0.85rem;
+    max-width: 180px;
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
   }
   
   .compact-item .label,
   .compact-item .value {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
   }
   
   .summary-section.compact h3 {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
   }
   
   .summary-section.compact {
-    padding: 0.5rem;
+    padding: 0.4rem;
   }
   
   .compact-item {
-    padding: 0.3rem 0.5rem;
+    padding: 0.25rem 0.4rem;
+  }
+  
+  .budget-summary {
+    font-size: 0.7rem;
+  }
+  
+  .insufficient-income,
+  .no-income-data {
+    padding: 0.75rem;
+  }
+  
+  .insufficient-income p,
+  .no-income-data p {
+    font-size: 0.75rem;
+  }
+}
+
+/* Plan Card Chart Styles */
+.plan-chart-section {
+  margin: 1rem 0;
+  padding: 0.75rem;
+  background: #f8f9fa;
+  border-radius: 6px;
+  text-align: center;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.mini-chart-container {
+  width: 100%;
+  position: relative;
+  margin-bottom: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.mini-chart-container canvas {
+  max-height: 90px !important;
+  width: auto !important;
+}
+
+.chart-label {
+  font-size: 0.8rem;
+  color: #666;
+  font-weight: 600;
+}
+
+.chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 8px 0 4px 0;
+  justify-content: center;
+  font-size: 0.65rem;
+  line-height: 1.2;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  white-space: nowrap;
+  color: #333;
+}
+
+.legend-color {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  border: 1px solid #ddd;
+  flex-shrink: 0;
+}
+
+.legend-color.red {
+  background-color: #e60012;
+}
+
+.legend-color.white {
+  background-color: #ffffff;
+}
+
+.legend-color.gray {
+  background-color: #666666;
+}
+
+.remaining-amount {
+  margin-top: 2px;
+  font-size: 0.7rem;
+  color: #333;
+  text-align: center;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.chart-legend-large {
+  display: flex;
+  gap: 16px;
+  margin: 16px 0;
+  justify-content: center;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.chart-legend-large .legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.chart-legend-large .legend-color {
+  width: 16px;
+  height: 16px;
+}
+
+.no-chart-data {
+  padding: 0.75rem;
+  background: #e7f3ff;
+  border: 1px solid #b3d9ff;
+  border-radius: 4px;
+  color: #0c5aa6;
+}
+
+.no-chart-data span {
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.insufficient-income-mini {
+  padding: 0.75rem;
+  background: #fff3cd;
+  border: 1px solid #ffeaa7;
+  border-radius: 4px;
+  color: #856404;
+}
+
+.insufficient-income-mini span {
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+/* Responsive adjustments for plan charts */
+@media (max-width: 768px) {
+  .plan-chart-section {
+    margin: 0.75rem 0;
+    padding: 0.5rem;
+  }
+  
+  .mini-chart-container {
+    height: 100px;
+  }
+  
+  .chart-label {
+    font-size: 0.7rem;
+  }
+  
+  .no-chart-data span,
+  .insufficient-income-mini span {
+    font-size: 0.7rem;
   }
 }
