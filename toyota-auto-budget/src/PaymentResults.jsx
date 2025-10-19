@@ -3,6 +3,7 @@ import { useLocation, useNavigate, Link } from 'react-router-dom'
 import { Canvas } from '@react-three/fiber'
 import { OrbitControls, Environment } from '@react-three/drei'
 import RAV4Model from './RAV4Model'
+import toyotaVehicles from './data/toyotaVehicles.json'
 import './App.css'
 
 function PaymentResults() {
@@ -23,6 +24,7 @@ function PaymentResults() {
     msrp: '',
     make: 'Toyota',
     model: '',
+    trim: '',
     year: '2026',
     color: '',
     creditScore: '',
@@ -34,6 +36,7 @@ function PaymentResults() {
   })
 
   const [paymentCalculations, setPaymentCalculations] = useState({})
+  const [planComparisonType, setPlanComparisonType] = useState('financing') // 'financing' or 'leasing'
 
   // Console log every time formData changes
   useEffect(() => {
@@ -46,6 +49,26 @@ function PaymentResults() {
     setFormData(prev => ({
       ...prev,
       [name]: value
+    }))
+  }
+
+  const handleModelChange = (e) => {
+    const { value } = e.target
+    setFormData(prev => ({
+      ...prev,
+      model: value,
+      trim: '', // Reset trim when model changes
+      msrp: toyotaVehicles[value]?.basePrice?.toString() || prev.msrp
+    }))
+  }
+
+  const handleTrimChange = (e) => {
+    const { value } = e.target
+    const selectedTrim = toyotaVehicles[formData.model]?.trims.find(trim => trim.name === value)
+    setFormData(prev => ({
+      ...prev,
+      trim: value,
+      msrp: selectedTrim?.price?.toString() || prev.msrp
     }))
   }
 
@@ -168,6 +191,97 @@ function PaymentResults() {
     return tips
   }
 
+  // Calculate payment for a specific plan configuration
+  const calculatePlanPayment = (planType, termLength, annualMileage = null) => {
+    const msrp = parseFloat(formData.msrp) || 0
+    const downPayment = parseFloat(formData.downPayment) || 0
+    const tradeInValue = parseFloat(formData.tradeInValue) || 0
+    const creditScore = parseInt(formData.creditScore) || 700
+    
+    // Calculate taxes and fees (8.5% tax + $500 fees)
+    const taxRate = 0.085
+    const fees = 500
+    const taxesAndFees = (msrp * taxRate) + fees
+    
+    const financedAmount = msrp + taxesAndFees - downPayment - tradeInValue
+    
+    // Determine interest rate based on credit score and term length
+    let interestRate = 0.045 // Base rate
+    if (creditScore >= 720) interestRate = 0.035
+    else if (creditScore >= 690) interestRate = 0.045
+    else if (creditScore >= 670) interestRate = 0.055
+    else if (creditScore >= 650) interestRate = 0.065
+    else if (creditScore >= 630) interestRate = 0.075
+    else if (creditScore >= 610) interestRate = 0.085
+    else if (creditScore >= 580) interestRate = 0.095
+    else interestRate = 0.105
+    
+    // Adjust rate for term length (higher rates for longer terms)
+    if (termLength === 72) interestRate += 0.005
+    if (termLength === 84) interestRate += 0.01
+    
+    const monthlyRate = interestRate / 12
+    let monthlyPayment = 0
+    let totalCost = 0
+    let totalInterest = 0
+    
+    if (planType === 'financing') {
+      // Financing calculation
+      if (monthlyRate === 0) {
+        monthlyPayment = financedAmount / termLength
+      } else {
+        monthlyPayment = financedAmount * (monthlyRate * Math.pow(1 + monthlyRate, termLength)) / 
+                        (Math.pow(1 + monthlyRate, termLength) - 1)
+      }
+      totalCost = monthlyPayment * termLength + downPayment
+      totalInterest = (monthlyPayment * termLength) - financedAmount
+    } else {
+      // Leasing calculation
+      const residualPercentage = 0.55 // Typical 55% residual value
+      const residualValue = msrp * residualPercentage
+      const depreciationAmount = msrp - residualValue
+      
+      const monthlyDepreciation = depreciationAmount / termLength
+      const monthlyFinanceCharge = (msrp + residualValue) * (interestRate / 12)
+      const mileageAdjustment = annualMileage > 12000 ? (annualMileage - 12000) * 0.25 / 12 : 0
+      
+      monthlyPayment = monthlyDepreciation + monthlyFinanceCharge + mileageAdjustment
+      totalCost = monthlyPayment * termLength + downPayment
+      totalInterest = monthlyFinanceCharge * termLength
+    }
+    
+    return {
+      monthlyPayment: monthlyPayment.toFixed(2),
+      totalCost: totalCost.toFixed(2),
+      totalInterest: totalInterest.toFixed(2),
+      interestRate: (interestRate * 100).toFixed(2),
+      termLength,
+      annualMileage,
+      planType
+    }
+  }
+
+  // Get all available financing plans
+  const getFinancingPlans = () => {
+    const terms = [24, 36, 48, 60, 72]
+    return terms.map(term => calculatePlanPayment('financing', term))
+  }
+
+  // Get all available leasing plans
+  const getLeasingPlans = () => {
+    const terms = [24, 36, 48, 60]
+    const mileageOptions = [10000, 12000, 15000]
+    const plans = []
+    
+    terms.forEach(term => {
+      mileageOptions.forEach(mileage => {
+        plans.push(calculatePlanPayment('leasing', term, mileage))
+      })
+    })
+    
+    return plans
+  }
+
   if (!initialData) {
     return <div>Loading...</div>
   }
@@ -179,7 +293,7 @@ function PaymentResults() {
 
       {/* 3D RAV4 Model */}
       <div className="model-section">
-        <h2>Your {formData.model || 'Toyota RAV4'}</h2>
+        <h2>Your {formData.model || 'Toyota RAV4'}{formData.trim ? ` ${formData.trim}` : ''}</h2>
         <div className="model-viewer">
           <Canvas camera={{ position: [50, 30, 50], fov: 75 }}>
             <ambientLight intensity={0.8} />
@@ -203,99 +317,49 @@ function PaymentResults() {
         </p>
       </div>
 
-      <div className="results-layout">
-        {/* Payment Results Section */}
-        <div className="results-section">
-          <h2>Payment Calculations</h2>
-          
-          <div className="payment-summary">
-            <div className="payment-card primary">
-              <h3>Monthly Payment</h3>
-              <div className="payment-amount">${paymentCalculations.monthlyPayment}</div>
-              <small>{formData.planType === 'loan' ? 'Loan Payment' : 'Lease Payment'}</small>
-            </div>
-            
-            <div className="payment-details">
-              <div className="detail-item">
-                <span>Vehicle Price:</span>
-                <span>${parseFloat(formData.msrp).toLocaleString()}</span>
-              </div>
-              <div className="detail-item">
-                <span>Taxes & Fees (Est.):</span>
-                <span>${parseFloat(paymentCalculations.taxesAndFees || 0).toLocaleString()}</span>
-              </div>
-              <div className="detail-item">
-                <span>Down Payment:</span>
-                <span>${parseFloat(formData.downPayment).toLocaleString()}</span>
-              </div>
-              {formData.tradeInValue && (
-                <div className="detail-item">
-                  <span>Trade-in Value:</span>
-                  <span>${parseFloat(formData.tradeInValue).toLocaleString()}</span>
-                </div>
-              )}
-              <div className="detail-item">
-                <span>{formData.planType === 'loan' ? 'Loan' : 'Lease'} Amount:</span>
-                <span>${parseFloat(paymentCalculations.loanAmount).toLocaleString()}</span>
-              </div>
-              <div className="detail-item">
-                <span>Interest Rate:</span>
-                <span>{paymentCalculations.interestRate}% APR</span>
-              </div>
-              <div className="detail-item">
-                <span>Term:</span>
-                <span>{formData.termLength} months</span>
-              </div>
-              <div className="detail-item total">
-                <span>Total Cost:</span>
-                <span>${parseFloat(paymentCalculations.totalCost).toLocaleString()}</span>
-              </div>
-              {formData.planType === 'loan' ? (
-                <div className="detail-item">
-                  <span>Total Interest:</span>
-                  <span>${parseFloat(paymentCalculations.totalInterest).toLocaleString()}</span>
-                </div>
-              ) : (
-                <div className="detail-item">
-                  <span>Residual Value:</span>
-                  <span>${parseFloat(paymentCalculations.residualValue).toLocaleString()}</span>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Financial Tips */}
-          <div className="tips-section">
-            <h3>Financial Tips</h3>
-            <div className="tips-list">
-              {getFinancingTips().map((tip, index) => (
-                <div key={index} className="tip-item">{tip}</div>
-              ))}
-              {getFinancingTips().length === 0 && (
-                <div className="tip-item">✅ Your financing looks good!</div>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Editable Form Section */}
-        <div className="edit-section">
-          <h2>Adjust Your Information</h2>
-          
-          <div className="edit-form">
+      {/* Accessible Adjustment Controls */}
+      <div className="adjustment-controls">
+        <h2>Customize Your Options</h2>
+        
+        <div className="edit-form">
+          {/* Vehicle and Financial Information Side by Side */}
+          <div className="edit-sections-row">
             {/* Vehicle Information */}
             <div className="edit-group">
               <h4>Vehicle Information</h4>
               <div className="input-row">
                 <div className="input-group">
                   <label>Model:</label>
-                  <input
-                    type="text"
+                  <select
                     name="model"
                     value={formData.model}
-                    onChange={handleInputChange}
-                  />
+                    onChange={handleModelChange}
+                    required
+                  >
+                    <option value="">Select a Model</option>
+                    {Object.keys(toyotaVehicles).map(model => (
+                      <option key={model} value={model}>{model}</option>
+                    ))}
+                  </select>
                 </div>
+                
+                <div className="input-group">
+                  <label>Trim:</label>
+                  <select
+                    name="trim"
+                    value={formData.trim}
+                    onChange={handleTrimChange}
+                    disabled={!formData.model}
+                  >
+                    <option value="">Select a Trim</option>
+                    {formData.model && toyotaVehicles[formData.model]?.trims.map(trim => (
+                      <option key={trim.name} value={trim.name}>{trim.name}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+              
+              <div className="input-row">
                 <div className="input-group">
                   <label>MSRP ($):</label>
                   <input
@@ -304,6 +368,9 @@ function PaymentResults() {
                     value={formData.msrp}
                     onChange={handleInputChange}
                   />
+                  {formData.trim && (
+                    <small className="helper-text">Pre-filled from selected trim - feel free to adjust</small>
+                  )}
                 </div>
               </div>
             </div>
@@ -350,8 +417,9 @@ function PaymentResults() {
                 </div>
               </div>
             </div>
+          </div>
 
-            {/* Payment Information */}
+          {/* Payment Information */}
             <div className="edit-group">
               <h4>Payment Information</h4>
               
@@ -391,31 +459,120 @@ function PaymentResults() {
               </div>
             </div>
 
-            {/* Plan Preferences */}
+            {/* Plan Comparison Type Selector */}
             <div className="edit-group">
-              <h4>Plan Preferences</h4>
+              <h4>Compare Payment Plans</h4>
               <div className="input-row">
                 <div className="input-group">
-                  <label>Financing Type:</label>
-                  <select name="planType" value={formData.planType} onChange={handleInputChange}>
-                    <option value="loan">Loan (Purchase)</option>
-                    <option value="lease">Lease</option>
-                  </select>
-                </div>
-                <div className="input-group">
-                  <label>Term Length:</label>
-                  <select name="termLength" value={formData.termLength} onChange={handleInputChange}>
-                    <option value="24">24 months</option>
-                    <option value="36">36 months</option>
-                    <option value="48">48 months</option>
-                    <option value="60">60 months</option>
-                    <option value="72">72 months</option>
-                    {formData.planType === 'loan' && <option value="84">84 months</option>}
+                  <label>Plan Type:</label>
+                  <select 
+                    value={planComparisonType} 
+                    onChange={(e) => setPlanComparisonType(e.target.value)}
+                  >
+                    <option value="financing">Financing Plans</option>
+                    <option value="leasing">Leasing Plans</option>
                   </select>
                 </div>
               </div>
             </div>
           </div>
+      </div>
+
+      {/* Plan Comparison Cards */}
+      <div className="plan-comparison-section">
+        <h2>{planComparisonType === 'financing' ? 'Financing' : 'Leasing'} Plan Options</h2>
+        <div className="plans-grid">
+          {planComparisonType === 'financing' ? (
+            getFinancingPlans().map((plan, index) => (
+              <div key={index} className="plan-card">
+                <div className="plan-header">
+                  <h3>{plan.termLength} Months</h3>
+                  <span className="plan-type">Financing</span>
+                </div>
+                <div className="plan-payment">
+                  <div className="monthly-payment">
+                    <span className="amount">${parseFloat(plan.monthlyPayment).toLocaleString()}</span>
+                    <span className="period">/month</span>
+                  </div>
+                </div>
+                <div className="plan-details">
+                  <div className="detail-item">
+                    <span>APR:</span>
+                    <span>{plan.interestRate}%</span>
+                  </div>
+                  <div className="detail-item">
+                    <span>Total Cost:</span>
+                    <span>${parseFloat(plan.totalCost).toLocaleString()}</span>
+                  </div>
+                  <div className="detail-item">
+                    <span>Total Interest:</span>
+                    <span>${parseFloat(plan.totalInterest).toLocaleString()}</span>
+                  </div>
+                  <div className="detail-item">
+                    <span>Term:</span>
+                    <span>{plan.termLength} months</span>
+                  </div>
+                </div>
+                <button 
+                  className="select-plan-btn"
+                  onClick={() => {
+                    setFormData(prev => ({
+                      ...prev,
+                      planType: 'loan',
+                      termLength: plan.termLength.toString()
+                    }))
+                  }}
+                >
+                  Select This Plan
+                </button>
+              </div>
+            ))
+          ) : (
+            getLeasingPlans().map((plan, index) => (
+              <div key={index} className="plan-card">
+                <div className="plan-header">
+                  <h3>{plan.termLength} Months</h3>
+                  <span className="plan-type">Lease</span>
+                </div>
+                <div className="plan-payment">
+                  <div className="monthly-payment">
+                    <span className="amount">${parseFloat(plan.monthlyPayment).toLocaleString()}</span>
+                    <span className="period">/month</span>
+                  </div>
+                </div>
+                <div className="plan-details">
+                  <div className="detail-item">
+                    <span>Mileage:</span>
+                    <span>{plan.annualMileage?.toLocaleString()}/year</span>
+                  </div>
+                  <div className="detail-item">
+                    <span>Total Cost:</span>
+                    <span>${parseFloat(plan.totalCost).toLocaleString()}</span>
+                  </div>
+                  <div className="detail-item">
+                    <span>Money Factor:</span>
+                    <span>{plan.interestRate}%</span>
+                  </div>
+                  <div className="detail-item">
+                    <span>Term:</span>
+                    <span>{plan.termLength} months</span>
+                  </div>
+                </div>
+                <button 
+                  className="select-plan-btn"
+                  onClick={() => {
+                    setFormData(prev => ({
+                      ...prev,
+                      planType: 'lease',
+                      termLength: plan.termLength.toString()
+                    }))
+                  }}
+                >
+                  Select This Plan
+                </button>
+              </div>
+            ))
+          )}
         </div>
       </div>
 
