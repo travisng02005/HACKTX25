@@ -143,7 +143,7 @@ function PaymentResults() {
   }
 
   return (
-    <div className="container">
+    <div className="container payment-results">
       <h1>Payment Plan Results</h1>
       <p>Your personalized Toyota payment plan</p>
 
@@ -277,31 +277,42 @@ function PaymentResults() {
             {/* Financial Information */}
             <div className="edit-group">
               <h4>Financial Information</h4>
-              <div className="input-row">
-                <div className="input-group">
-                  <label>Credit Score:</label>
+              
+              {/* Credit Score Slider */}
+              <div className="input-group">
+                <label>Credit Score: {formData.creditScore || 700}</label>
+                <div className="slider-container">
+                  <span className="slider-label">300</span>
                   <input
-                    type="number"
+                    type="range"
                     name="creditScore"
-                    value={formData.creditScore}
+                    value={formData.creditScore || 700}
                     onChange={handleInputChange}
                     min="300"
                     max="850"
+                    className="form-slider"
                   />
-                  {formData.creditScore && (
-                    <small className="credit-range">
-                      {getCreditScoreRange(parseInt(formData.creditScore))}
-                    </small>
-                  )}
+                  <span className="slider-label">850</span>
                 </div>
+                {formData.creditScore && (
+                  <small className="credit-range">
+                    {getCreditScoreRange(parseInt(formData.creditScore))}
+                  </small>
+                )}
+              </div>
+
+              {/* Annual Income Input */}
+              <div className="input-row">
                 <div className="input-group">
-                  <label>Annual Income ($):</label>
+                  <label>Annual Income ($ - Optional):</label>
                   <input
                     type="number"
                     name="income"
                     value={formData.income}
                     onChange={handleInputChange}
+                    placeholder="50000"
                   />
+                  <small>Helps provide better financing tips</small>
                 </div>
               </div>
             </div>
@@ -309,23 +320,38 @@ function PaymentResults() {
             {/* Payment Information */}
             <div className="edit-group">
               <h4>Payment Information</h4>
+              
+              {/* Down Payment Slider */}
+              <div className="input-group">
+                <label>Down Payment: ${parseInt(formData.downPayment || 0).toLocaleString()}</label>
+                <div className="slider-container">
+                  <span className="slider-label">$0</span>
+                  <input
+                    type="range"
+                    name="downPayment"
+                    value={formData.downPayment || 0}
+                    onChange={handleInputChange}
+                    min="0"
+                    max={formData.msrp || 50000}
+                    step="500"
+                    className="form-slider"
+                  />
+                  <span className="slider-label">${parseInt(formData.msrp || 50000).toLocaleString()}</span>
+                </div>
+                <small>Max: Vehicle MSRP (${parseInt(formData.msrp || 50000).toLocaleString()})</small>
+              </div>
+
+              {/* Trade-in Value Input */}
               <div className="input-row">
                 <div className="input-group">
-                  <label>Down Payment ($):</label>
-                  <input
-                    type="number"
-                    name="downPayment"
-                    value={formData.downPayment}
-                    onChange={handleInputChange}
-                  />
-                </div>
-                <div className="input-group">
-                  <label>Trade-in Value ($):</label>
+                  <label>Trade-in Value ($ - Optional):</label>
                   <input
                     type="number"
                     name="tradeInValue"
                     value={formData.tradeInValue}
                     onChange={handleInputChange}
+                    min="0"
+                    placeholder="10000"
                   />
                 </div>
               </div>

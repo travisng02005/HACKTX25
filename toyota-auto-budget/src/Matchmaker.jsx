@@ -17,12 +17,12 @@ function ToyotaProgressBar({ step, totalSteps }) {
         left: 0,
         width: "100%",
         height: "100px",
-        background: "linear-gradient(to bottom, #fff, #f8f9fa)",
+        background: "linear-gradient(to bottom, #e60012, #c60a19)",
         zIndex: 50,
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        boxShadow: "0 2px 6px rgba(0,0,0,0.05)",
+        boxShadow: "0 4px 10px rgba(0,0,0,0.2)",
       }}
     >
       <div style={{ position: "relative", width: "90%", height: "8px" }}>
@@ -34,7 +34,7 @@ function ToyotaProgressBar({ step, totalSteps }) {
             left: 0,
             right: 0,
             height: "8px",
-            background: "#e5e7eb",
+            background: "#f0f0f0",
             borderRadius: "10px",
             transform: "translateY(-50%)",
           }}
@@ -50,7 +50,7 @@ function ToyotaProgressBar({ step, totalSteps }) {
             textAlign: "center",
           }}
         >
-          <div style={{ height: "50px", width: "3px", background: "#111" }}></div>
+          <div style={{ height: "50px", width: "3px", background: "white" }}></div>
           <div style={{ fontSize: "18px", marginTop: "4px" }}>🏁</div>
         </div>
 
@@ -183,16 +183,15 @@ function Matchmaker() {
       <h2>{currentQuestion.text}</h2>
 
       <div className="slider-row">
-        <span>Strongly Disagree</span>
+        <span className="slider-label-text">Strongly Disagree</span>
         <input
           type="range"
           min="1"
           max="7"
           value={answers[currentQuestion.id] || 4}
           onChange={(e) => handleAnswer(Number(e.target.value))}
-          style={{ width: "100%", margin: "1.5rem 0" }}
         />
-        <span>Strongly Agree</span>
+        <span className="slider-label-text">Strongly Agree</span>
       </div>
 
       <div className="button-container">
