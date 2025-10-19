@@ -29,6 +29,14 @@ function PaymentResults() {
     }
   }, [initialData])
 
+  // Add gradient background class
+  useEffect(() => {
+    document.body.classList.add('payment-results-page')
+    return () => {
+      document.body.classList.remove('payment-results-page')
+    }
+  }, [])
+
   const [formData, setFormData] = useState(initialData || {
     msrp: '',
     make: 'Toyota',
@@ -41,7 +49,11 @@ function PaymentResults() {
     downPayment: '',
     tradeInValue: '',
     planType: 'loan',
-    termLength: '60'
+    termLength: '60',
+    housingBudget: '',
+    foodBudget: '',
+    utilitiesBudget: '',
+    otherBudget: ''
   })
 
   const [paymentCalculations, setPaymentCalculations] = useState({})
@@ -60,7 +72,7 @@ function PaymentResults() {
     calculatePayments()
   }, [formData, rebates])
 
-  // Scroll to Payment Plan Options when component mounts
+  // Scroll to Payment Plan Options when component mounts or when navigating from PersonalInfo
   useEffect(() => {
     if (paymentPlanRef.current) {
       setTimeout(() => {
@@ -70,7 +82,7 @@ function PaymentResults() {
         })
       }, 500) // Small delay to allow content to render and calculations to complete
     }
-  }, []) // Empty dependency array - runs only once on mount
+  }, [location.state]) // Trigger on location state change (navigation from PersonalInfo)
 
   const handleInputChange = (e) => {
     const { name, value } = e.target
@@ -84,7 +96,7 @@ function PaymentResults() {
     const { name, value } = e.target
     
     // List of numeric fields that should be formatted with commas
-    const numericFields = ['msrp', 'income', 'tradeInValue']
+    const numericFields = ['msrp', 'income', 'tradeInValue', 'housingBudget', 'foodBudget', 'utilitiesBudget', 'otherBudget']
     
     if (numericFields.includes(name) && value) {
       // Clean and format the value when user finishes typing
@@ -597,6 +609,72 @@ function PaymentResults() {
                   <small>Total Savings: ${(rebates.military ? 500 : 0) + (rebates.college ? 500 : 0)}</small>
                 </div>
               )}
+            </div>
+          </div>
+
+          {/* Row 3: Monthly Budget Information */}
+          <div className="edit-sections-row">
+            <div className="edit-group">
+              <h4>Monthly Budget</h4>
+              <p style={{margin: '0 0 1rem 0', color: '#666', fontSize: '0.9rem'}}>
+                Adjust your monthly spending estimates for better recommendations
+              </p>
+              
+              <div className="input-row">
+                <div className="input-group">
+                  <label>Housing:</label>
+                  <input
+                    type="text"
+                    name="housingBudget"
+                    value={formData.housingBudget || ''}
+                    onChange={handleInputChange}
+                    onBlur={handleInputBlur}
+                    placeholder="1,500"
+                  />
+                  <small>Rent/mortgage, property taxes, insurance</small>
+                </div>
+                
+                <div className="input-group">
+                  <label>Food:</label>
+                  <input
+                    type="text"
+                    name="foodBudget"
+                    value={formData.foodBudget || ''}
+                    onChange={handleInputChange}
+                    onBlur={handleInputBlur}
+                    placeholder="600"
+                  />
+                  <small>Groceries, dining out, beverages</small>
+                </div>
+              </div>
+
+              <div className="input-row">
+                <div className="input-group">
+                  <label>Utilities:</label>
+                  <input
+                    type="text"
+                    name="utilitiesBudget"
+                    value={formData.utilitiesBudget || ''}
+                    onChange={handleInputChange}
+                    onBlur={handleInputBlur}
+                    placeholder="200"
+                  />
+                  <small>Electricity, gas, water, internet, phone</small>
+                </div>
+                
+                <div className="input-group">
+                  <label>Other:</label>
+                  <input
+                    type="text"
+                    name="otherBudget"
+                    value={formData.otherBudget || ''}
+                    onChange={handleInputChange}
+                    onBlur={handleInputBlur}
+                    placeholder="400"
+                  />
+                  <small>Entertainment, shopping, subscriptions, etc.</small>
+                </div>
+              </div>
             </div>
           </div>
         </div>

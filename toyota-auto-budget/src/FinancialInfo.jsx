@@ -19,7 +19,6 @@ function FinancialInformation() {
   const [formData, setFormData] = useState({
     ...initialData,
     creditScore: initialData.creditScore || 700,
-    income: initialData.income || '',
     downPayment: initialData.downPayment || 0,
     tradeInValue: initialData.tradeInValue || '',
     planType: initialData.planType || 'loan',
@@ -46,7 +45,7 @@ function FinancialInformation() {
 
   const handleInputBlur = (e) => {
     const { name, value } = e.target
-    const numericFields = ['income', 'tradeInValue']
+    const numericFields = ['tradeInValue']
     if (numericFields.includes(name) && value) {
       const clean = value.replace(/[^\d]/g, '')
       if (clean && clean.length >= 4) {
@@ -84,7 +83,7 @@ function FinancialInformation() {
 
   const handleNext = (e) => {
     e.preventDefault()
-    navigate('/payment-results', { 
+    navigate('/personal-info', { 
       state: { 
         formData: {
           ...formData,
@@ -101,11 +100,23 @@ function FinancialInformation() {
 
       <div className="adjustment-controls">
         <div className="edit-form">
-          {/* Row 1: Credit Score, Annual Income, Available Rebates */}
+          {/* Row 1: Credit Score, Down Payment */}
           <div className="edit-sections-row">
             {/* CREDIT SCORE SLIDER */}
             <div className="edit-group">
-              <h4>Credit Score</h4>
+              <h4>
+                Credit Score
+                <div className="tooltip-container">
+                  <span className="tooltip-icon">?</span>
+                  <div className="tooltip-content">
+                    Your credit score affects your loan terms and interest rates. Higher scores typically get:
+                    <br />• Lower interest rates
+                    <br />• Better loan terms
+                    <br />• Higher approval chances
+                    <br />• More financing options
+                  </div>
+                </div>
+              </h4>
               <div className="input-group">
                 <label>Credit Score: {formData.creditScore}</label>
                 <div className="slider-container">
@@ -128,81 +139,21 @@ function FinancialInformation() {
               <a href="https://www.experian.com/lp/credit-score-unbr/" target="_blank">Whats my credit score?</a>
             </div>
 
-            {/* INCOME INPUT */}
-            <div className="edit-group">
-              <h4>Annual Income</h4>
-              <div className="input-group">
-                <label>Gross Income ($):</label>
-                <input
-                  type="text"
-                  name="income"
-                  value={formData.income}
-                  onChange={handleInputChange}
-                  onBlur={handleInputBlur}
-                  placeholder="50,000"
-                />
-                <small>Your income before taxes</small>
-              </div>
-            </div>
-
-            {/* REBATES SECTION */}
-            <div className="edit-group">
-              <h4>Available Rebates</h4>
-              <div className="input-row">
-                <div className="input-group">
-                  <label className="checkbox-label">
-                    <input
-                      type="checkbox"
-                      checked={rebates.military}
-                      onChange={() => handleRebateChange('military')}
-                    />
-                    <span className="checkbox-text">Military - $500</span>
-                  </label>
-                </div>
-                <div className="input-group">
-                  <label className="checkbox-label">
-                    <input
-                      type="checkbox"
-                      checked={rebates.college}
-                      onChange={() => handleRebateChange('college')}
-                    />
-                    <span className="checkbox-text">College - $500</span>
-                  </label>
-                </div>
-              </div>
-              {(rebates.military || rebates.college) && (
-                <div className="rebate-savings">
-                  <small>
-                    Total Savings: $
-                    {(rebates.military ? 500 : 0) + (rebates.college ? 500 : 0)}
-                  </small>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Row 2: Trade-in Value, Down Payment, Plan Type */}
-          <div className="edit-sections-row">
-            {/* TRADE-IN VALUE INPUT */}
-            <div className="edit-group">
-              <h4>Trade-in Value</h4>
-              <div className="input-group">
-                <label>Trade-in Value ($ - Optional):</label>
-                <input
-                  type="text"
-                  name="tradeInValue"
-                  value={formData.tradeInValue}
-                  onChange={handleInputChange}
-                  onBlur={handleInputBlur}
-                  placeholder="10,000"
-                />
-              </div>
-              <a href="https://www.kbb.com/whats-my-car-worth/" target="_blank">Whats my car's value?</a>
-            </div>
-
             {/* DOWN PAYMENT SLIDER */}
             <div className="edit-group">
-              <h4>Down Payment</h4>
+              <h4>
+                Down Payment
+                <div className="tooltip-container">
+                  <span className="tooltip-icon">?</span>
+                  <div className="tooltip-content">
+                    A down payment reduces your loan amount and monthly payments. A larger down payment typically means:
+                    <br />• Lower monthly payments
+                    <br />• Less interest paid over time
+                    <br />• Better loan terms
+                    <br />• Lower total cost of ownership
+                  </div>
+                </div>
+              </h4>
               <div className="input-group">
                 <label>
                   Down Payment: ${parseInt(formData.downPayment || 0).toLocaleString()}
@@ -228,10 +179,94 @@ function FinancialInformation() {
                 </small>
               </div>
             </div>
+          </div>
+
+          {/* Row 2: Trade-in Value, Available Rebates, Plan Type */}
+          <div className="edit-sections-row">
+            {/* TRADE-IN VALUE INPUT */}
+            <div className="edit-group">
+              <h4>
+                Trade-in Value
+                <div className="tooltip-container">
+                  <span className="tooltip-icon">?</span>
+                  <div className="tooltip-content">
+                    Trading in your current vehicle reduces the total amount you need to finance. Benefits include:
+                    <br />• Lower loan amount
+                    <br />• Reduced monthly payments
+                    <br />• Simplified process
+                    <br />• Potential tax savings
+                  </div>
+                </div>
+              </h4>
+              <div className="input-group">
+                <label>Trade-in Value ($ - Optional):</label>
+                <input
+                  type="text"
+                  name="tradeInValue"
+                  value={formData.tradeInValue}
+                  onChange={handleInputChange}
+                  onBlur={handleInputBlur}
+                  placeholder="10,000"
+                />
+              </div>
+              <a href="https://www.kbb.com/whats-my-car-worth/" target="_blank">Whats my car's value?</a>
+            </div>
+
+            {/* REBATES SECTION */}
+            <div className="edit-group">
+              <h4>
+                Available Rebates
+                <div className="tooltip-container">
+                  <span className="tooltip-icon">?</span>
+                  <div className="tooltip-content">
+                    Toyota offers special rebates for qualified buyers that reduce your vehicle's final price:
+                    <br />• Military: $500 for active duty, veterans, and retirees
+                    <br />• College: $500 for recent graduates and current students
+                    <br />• Rebates can be combined with other offers
+                  </div>
+                </div>
+              </h4>
+              <div className="input-row">
+                <label className="checkbox-label">
+                  <input
+                    type="checkbox"
+                    checked={rebates.military}
+                    onChange={() => handleRebateChange('military')}
+                  />
+                  <span className="checkbox-text">Military - $500</span>
+                </label>
+                <label className="checkbox-label">
+                  <input
+                    type="checkbox"
+                    checked={rebates.college}
+                    onChange={() => handleRebateChange('college')}
+                  />
+                  <span className="checkbox-text">College - $500</span>
+                </label>
+              </div>
+              <small>
+                {(rebates.military || rebates.college) ? (
+                  `Total Savings: $${(rebates.military ? 500 : 0) + (rebates.college ? 500 : 0)}`
+                ) : (
+                  'Select applicable rebates to see savings.'
+                )}
+              </small>
+            </div>
 
             {/* PLAN TYPE */}
             <div className="edit-group">
-              <h4>Plan Type</h4>
+              <h4>
+                Plan Type
+                <div className="tooltip-container">
+                  <span className="tooltip-icon">?</span>
+                  <div className="tooltip-content">
+                    Choose between loan (financing) or lease based on your needs:
+                    <br />• <strong>Loan:</strong> Own the vehicle, build equity, no mileage limits
+                    <br />• <strong>Lease:</strong> Lower payments, newer features, return at end
+                    <br />• Consider your driving habits and long-term plans
+                  </div>
+                </div>
+              </h4>
               <div className="input-row">
                 <label className="checkbox-label">
                   <input
@@ -265,7 +300,19 @@ function FinancialInformation() {
           {/* LEASE MILEAGE OPTION - Full Width */}
           {formData.planType === 'lease' && (
             <div className="edit-group">
-              <h4>Annual Mileage</h4>
+              <h4>
+                Annual Mileage
+                <div className="tooltip-container">
+                  <span className="tooltip-icon">?</span>
+                  <div className="tooltip-content">
+                    Choose your expected annual mileage for your lease term:
+                    <br />• <strong>Lower mileage:</strong> Cheaper monthly payments
+                    <br />• <strong>Higher mileage:</strong> More expensive but avoid overage fees
+                    <br />• Excess mileage fees: typically $0.15-$0.25 per mile
+                    <br />• Plan conservatively to avoid surprise costs
+                  </div>
+                </div>
+              </h4>
               <div className="input-group">
                 <label>Mileage per Year: {formData.annualMileage.toLocaleString()} miles</label>
                 <div className="slider-container">
