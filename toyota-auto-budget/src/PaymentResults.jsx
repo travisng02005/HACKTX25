@@ -56,32 +56,58 @@ function PaymentResults() {
     const creditScore = parseInt(formData.creditScore) || 700
     const termLength = parseInt(formData.termLength) || 60
 
-    // Calculate interest rate based on credit score
+    // Calculate interest rate based on credit score and term length
     let interestRate
-    if (creditScore >= 800) interestRate = 0.0299 // 2.99%
-    else if (creditScore >= 740) interestRate = 0.0399 // 3.99%
-    else if (creditScore >= 670) interestRate = 0.0599 // 5.99%
-    else if (creditScore >= 580) interestRate = 0.0799 // 7.99%
-    else interestRate = 0.1199 // 11.99%
+    
+    // Determine APR based on credit score ranges and term length
+    if (termLength === 72) {
+      // 72 month rates
+      if (creditScore >= 720) interestRate = 0.0911      // Excellent 720+: 9.11%
+      else if (creditScore >= 690) interestRate = 0.1005 // Great 719-690: 10.05%
+      else if (creditScore >= 670) interestRate = 0.1257 // Very Good 689-670: 12.57%
+      else if (creditScore >= 650) interestRate = 0.1298 // Good 669-650: 12.98%
+      else if (creditScore >= 630) interestRate = 0.1399 // Fair 649-630: 13.99%
+      else if (creditScore >= 610) interestRate = 0.1649 // Poor 629-610: 16.49%
+      else if (creditScore >= 580) interestRate = 0.1800 // Very Poor 609-580: 18.00%
+      else interestRate = 0.1800                          // Extremely Poor 579-520: 18.00%
+    } else {
+      // 24, 48, 60 month rates
+      if (creditScore >= 720) interestRate = 0.0872      // Excellent 720+: 8.72%
+      else if (creditScore >= 690) interestRate = 0.0949 // Great 719-690: 9.49%
+      else if (creditScore >= 670) interestRate = 0.1177 // Very Good 689-670: 11.77%
+      else if (creditScore >= 650) interestRate = 0.1252 // Good 669-650: 12.52%
+      else if (creditScore >= 630) interestRate = 0.1361 // Fair 649-630: 13.61%
+      else if (creditScore >= 610) interestRate = 0.1553 // Poor 629-610: 15.53%
+      else if (creditScore >= 580) interestRate = 0.1769 // Very Poor 609-580: 17.69%
+      else interestRate = 0.1800                          // Extremely Poor 579-520: 18.00%
+    }
 
-    // Calculate loan amount
-    const loanAmount = msrp - downPayment - tradeInValue
+    // Calculate loan amount with typical fees (taxes, title, etc.)
+    const taxesAndFees = msrp * 0.08 // Approximate 8% for taxes, title, licensing
+    const financedAmount = msrp + taxesAndFees - downPayment - tradeInValue
     
     if (formData.planType === 'loan') {
-      // Loan calculation
+      // Loan calculation using standard amortization formula
       const monthlyRate = interestRate / 12
-      const monthlyPayment = loanAmount * (monthlyRate * Math.pow(1 + monthlyRate, termLength)) / 
-                            (Math.pow(1 + monthlyRate, termLength) - 1)
+      let monthlyPayment
+      
+      if (monthlyRate === 0) {
+        monthlyPayment = financedAmount / termLength
+      } else {
+        monthlyPayment = financedAmount * (monthlyRate * Math.pow(1 + monthlyRate, termLength)) / 
+                        (Math.pow(1 + monthlyRate, termLength) - 1)
+      }
       
       const totalCost = monthlyPayment * termLength + downPayment
-      const totalInterest = (monthlyPayment * termLength) - loanAmount
+      const totalInterest = (monthlyPayment * termLength) - financedAmount
 
       setPaymentCalculations({
         monthlyPayment: monthlyPayment.toFixed(2),
         totalCost: totalCost.toFixed(2),
         totalInterest: totalInterest.toFixed(2),
-        loanAmount: loanAmount.toFixed(2),
-        interestRate: (interestRate * 100).toFixed(2)
+        loanAmount: financedAmount.toFixed(2),
+        interestRate: (interestRate * 100).toFixed(2),
+        taxesAndFees: taxesAndFees.toFixed(2)
       })
     } else {
       // Lease calculation (simplified)
@@ -98,17 +124,21 @@ function PaymentResults() {
         totalCost: totalCost.toFixed(2),
         residualValue: residualValue.toFixed(2),
         loanAmount: msrp.toFixed(2),
-        interestRate: (interestRate * 100).toFixed(2)
+        interestRate: (interestRate * 100).toFixed(2),
+        taxesAndFees: taxesAndFees.toFixed(2)
       })
     }
   }
 
   const getCreditScoreRange = (score) => {
-    if (score >= 800) return 'Excellent (800+)'
-    if (score >= 740) return 'Very Good (740-799)'
-    if (score >= 670) return 'Good (670-739)'
-    if (score >= 580) return 'Fair (580-669)'
-    if (score >= 300) return 'Poor (300-579)'
+    if (score >= 720) return 'Excellent (720+)'
+    if (score >= 690) return 'Great (690-719)'
+    if (score >= 670) return 'Very Good (670-689)'
+    if (score >= 650) return 'Good (650-669)'
+    if (score >= 630) return 'Fair (630-649)'
+    if (score >= 610) return 'Poor (610-629)'
+    if (score >= 580) return 'Very Poor (580-609)'
+    if (score >= 520) return 'Extremely Poor (520-579)'
     return 'Unknown'
   }
 
@@ -189,6 +219,10 @@ function PaymentResults() {
               <div className="detail-item">
                 <span>Vehicle Price:</span>
                 <span>${parseFloat(formData.msrp).toLocaleString()}</span>
+              </div>
+              <div className="detail-item">
+                <span>Taxes & Fees (Est.):</span>
+                <span>${parseFloat(paymentCalculations.taxesAndFees || 0).toLocaleString()}</span>
               </div>
               <div className="detail-item">
                 <span>Down Payment:</span>

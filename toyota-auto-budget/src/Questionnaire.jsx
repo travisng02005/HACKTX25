@@ -12,8 +12,8 @@ function Questionnaire() {
   const [formData, setFormData] = useState({
     // Vehicle Info
     msrp: prefilledData.msrp || '',
-    make: prefilledData.make || 'Toyota',
     model: prefilledData.model || '',
+    trim: '',
     year: prefilledData.year || '2026',
     color: '',
     
@@ -128,18 +128,21 @@ function Questionnaire() {
   }
 
   const getCreditScoreRange = (score) => {
-    if (score >= 800) return 'Excellent (800+)'
-    if (score >= 740) return 'Very Good (740-799)'
-    if (score >= 670) return 'Good (670-739)'
-    if (score >= 580) return 'Fair (580-669)'
-    if (score >= 300) return 'Poor (300-579)'
+    if (score >= 720) return 'Excellent (720+)'
+    if (score >= 690) return 'Great (690-719)'
+    if (score >= 670) return 'Very Good (670-689)'
+    if (score >= 650) return 'Good (650-669)'
+    if (score >= 630) return 'Fair (630-649)'
+    if (score >= 610) return 'Poor (610-629)'
+    if (score >= 580) return 'Very Poor (580-609)'
+    if (score >= 520) return 'Extremely Poor (520-579)'
     return 'Unknown'
   }
 
   return (
     <div className="container">
-      <h1>Payment Plan Questionnaire</h1>
-      <p>Find the perfect payment plan for your Toyota vehicle</p>
+      <h1>Vehicle Information</h1>
+      <p>Tell us about your Toyota vehicle</p>
       
       {/* Pre-filled message */}
       {prefilledMessage && (
@@ -168,7 +171,7 @@ function Questionnaire() {
 
       {/* Manual Form Section */}
       <div className="form-section">
-        <h3>Option 2: Fill Out Manually</h3>
+        <h3>Option 2: Enter Vehicle Details Manually</h3>
         <form onSubmit={handleFormSubmit} className="questionnaire-form">
           
           {/* Vehicle Information */}
@@ -177,25 +180,25 @@ function Questionnaire() {
             
             <div className="input-row">
               <div className="input-group">
-                <label>Make:</label>
-                <input
-                  type="text"
-                  name="make"
-                  value={formData.make}
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
-              
-              <div className="input-group">
                 <label>Model:</label>
                 <input
                   type="text"
                   name="model"
                   value={formData.model}
                   onChange={handleInputChange}
-                  placeholder="e.g., Corolla Cross"
+                  placeholder="e.g., RAV4"
                   required
+                />
+              </div>
+              
+              <div className="input-group">
+                <label>Trim:</label>
+                <input
+                  type="text"
+                  name="trim"
+                  value={formData.trim}
+                  onChange={handleInputChange}
+                  placeholder="e.g., XLE Hybrid"
                 />
               </div>
             </div>
@@ -235,115 +238,9 @@ function Questionnaire() {
             </div>
           </fieldset>
 
-          {/* Financial Information */}
-          <fieldset className="form-group">
-            <legend>Financial Information</legend>
-            
-            <div className="input-row">
-              <div className="input-group">
-                <label>Credit Score: {formData.creditScore || 700}</label>
-                <div className="slider-container">
-                  <span className="slider-label">300</span>
-                  <input
-                    type="range"
-                    name="creditScore"
-                    value={formData.creditScore || 700}
-                    onChange={handleInputChange}
-                    min="300"
-                    max="850"
-                    className="form-slider"
-                  />
-                  <span className="slider-label">850</span>
-                </div>
-                {formData.creditScore && (
-                  <small className="credit-range">
-                    {getCreditScoreRange(parseInt(formData.creditScore))}
-                  </small>
-                )}
-              </div>
-              
-              <div className="input-group">
-                <label>Annual Income ($ - Optional):</label>
-                <input
-                  type="number"
-                  name="income"
-                  value={formData.income}
-                  onChange={handleInputChange}
-                  placeholder="50000"
-                />
-                <small>Helps provide better financing tips</small>
-              </div>
-            </div>
-          </fieldset>
-
-          {/* Payment Inputs */}
-          <fieldset className="form-group">
-            <legend>Payment Information</legend>
-            
-            <div className="input-row">
-              <div className="input-group">
-                <label>Down Payment: ${parseInt(formData.downPayment || 0).toLocaleString()}</label>
-                <div className="slider-container">
-                  <span className="slider-label">$0</span>
-                  <input
-                    type="range"
-                    name="downPayment"
-                    value={formData.downPayment || 0}
-                    onChange={handleInputChange}
-                    min="0"
-                    max={formData.msrp || 50000}
-                    step="500"
-                    className="form-slider"
-                  />
-                  <span className="slider-label">${parseInt(formData.msrp || 50000).toLocaleString()}</span>
-                </div>
-                <small>Max: Vehicle MSRP (${parseInt(formData.msrp || 50000).toLocaleString()})</small>
-              </div>
-              
-              <div className="input-group">
-                <label>Trade-in Value ($ - Optional):</label>
-                <input
-                  type="number"
-                  name="tradeInValue"
-                  value={formData.tradeInValue}
-                  onChange={handleInputChange}
-                  min="0"
-                  placeholder="10000"
-                />
-              </div>
-            </div>
-          </fieldset>
-
-          {/* Plan Preferences */}
-          <fieldset className="form-group">
-            <legend>Plan Preferences</legend>
-            
-            <div className="input-row">
-              <div className="input-group">
-                <label>Financing Type:</label>
-                <select name="planType" value={formData.planType} onChange={handleInputChange}>
-                  <option value="loan">Loan (Purchase)</option>
-                  <option value="lease">Lease</option>
-                </select>
-              </div>
-              
-              <div className="input-group">
-                <label>Term Length:</label>
-                <select name="termLength" value={formData.termLength} onChange={handleInputChange}>
-                  <option value="24">24 months</option>
-                  <option value="36">36 months</option>
-                  <option value="48">48 months</option>
-                  <option value="60">60 months</option>
-                  <option value="72">72 months</option>
-                  {formData.planType === 'loan' && <option value="84">84 months</option>}
-                </select>
-              </div>
-            </div>
-          </fieldset>
-
           <div className="button-container">
             <button type="submit" className="nav-button submit-button">
-              Calculate Payment Plan
+              Continue to Payment Planning
             </button>
             <Link to="/">
               <button type="button" className="nav-button">Back to Home</button>

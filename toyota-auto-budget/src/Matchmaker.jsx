@@ -102,6 +102,7 @@ const questions = [
   { id: 10, text: "I appreciate cars that feel exclusive or performance-tuned.", traits: { performance: 0.7, style: 0.3 } },
   { id: 11, text: "I want a car that helps me save money over time.", traits: { eco: 1, comfort: 0.5 } },
   { id: 12, text: "I like trying innovative or less common technologies (like hydrogen).", traits: { innovation: 1 } },
+  { id: 13, text: "What is your estimated gross annual income (before taxes)?", type: "income", traits: {} },
 ];
 
 const cars = [
@@ -142,8 +143,8 @@ function Matchmaker() {
           prefilledData: {
             model: result.car.name,
             msrp: result.car.msrp.toString(),
-            make: "Toyota",
             year: "2025",
+            income: answers[13] || '', // Include income from question 13
           },
         },
       });
@@ -155,7 +156,7 @@ function Matchmaker() {
         <h1>Your Toyota Match</h1>
         <h2>{result.car.name}</h2>
         <p>
-          Based on your preferences, the <b>{result.car.name}</b> fits your driving personality best!
+          Based on your preferences and income, the <b>{result.car.name}</b> fits your driving personality best!
         </p>
         <p>
           Starting MSRP: <strong>${result.car.msrp.toLocaleString()}</strong>
@@ -182,17 +183,34 @@ function Matchmaker() {
       </p>
       <h2>{currentQuestion.text}</h2>
 
-      <div className="slider-row">
-        <span className="slider-label-text">Strongly Disagree</span>
-        <input
-          type="range"
-          min="1"
-          max="7"
-          value={answers[currentQuestion.id] || 4}
-          onChange={(e) => handleAnswer(Number(e.target.value))}
-        />
-        <span className="slider-label-text">Strongly Agree</span>
-      </div>
+      {currentQuestion.type === 'income' ? (
+        <div className="income-input-section">
+          <div className="input-group">
+            <label>Annual Income ($):</label>
+            <input
+              type="number"
+              value={answers[currentQuestion.id] || ''}
+              onChange={(e) => handleAnswer(e.target.value)}
+              placeholder="50000"
+              min="0"
+              className="income-input"
+            />
+            <small>Enter your estimated gross annual income before taxes</small>
+          </div>
+        </div>
+      ) : (
+        <div className="slider-row">
+          <span className="slider-label-text">Strongly Disagree</span>
+          <input
+            type="range"
+            min="1"
+            max="7"
+            value={answers[currentQuestion.id] || 4}
+            onChange={(e) => handleAnswer(Number(e.target.value))}
+          />
+          <span className="slider-label-text">Strongly Agree</span>
+        </div>
+      )}
 
       <div className="button-container">
         {step > 0 && (

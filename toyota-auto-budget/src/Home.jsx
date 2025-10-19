@@ -11,7 +11,7 @@ function Home() {
       {/* Red Header */}
       <div className="home-header">
         <h1 className="home-welcome">Welcome to</h1>
-        <h2 className="home-title">TOYOTA FINANCIAL DRIVE</h2>
+        <h2 className="home-title">TOYOTA AUTO BUDGET</h2>
       </div>
 
       {/* Main Content Area */}
@@ -30,18 +30,25 @@ function Home() {
         {/* Right Side - Buttons */}
         <div className="home-right">
           <Link to="/questionnaire" className="home-button-link">
-            <button className="home-button">PAYMENT PLANNER</button>
+            <div className="home-button">
+              <div className="button-title">PAYMENT PLANNER</div>
+              <div className="button-subtitle">I know what I want and how much it costs</div>
+            </div>
           </Link>
 
-          <button 
+          <div 
             className="home-button" 
             onClick={handleExternalLink}
           >
-            PRICE YOUR RIDE
-          </button>
+            <div className="button-title">PRICE YOUR RIDE</div>
+            <div className="button-subtitle">I know what I want but don't know how much it costs</div>
+          </div>
 
           <Link to="/matchmaker" className="home-button-link">
-            <button className="home-button">TOYOTA MATCHMAKER</button>
+            <div className="home-button">
+              <div className="button-title">TOYOTA MATCHMAKER</div>
+              <div className="button-subtitle">I don't know what I want and don't know how much it costs</div>
+            </div>
           </Link>
         </div>
       </div>
