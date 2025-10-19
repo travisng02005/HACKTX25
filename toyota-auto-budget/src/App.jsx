@@ -1,8 +1,11 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import Home from './Home'
-import Questionnaire from './Questionnaire'
-import Matchmaker from './Matchmaker'
+import VehicleInfo from './VehicleInfo'
+import FinancialInfo from './FinancialInfo'
+import PaymentInfo from './PaymentInfo'
+import PlanPreferences from './PlanPreferences'
 import PaymentResults from './PaymentResults'
+import Matchmaker from './Matchmaker'
 import './App.css'
 
 function App() {
@@ -10,9 +13,17 @@ function App() {
     <Router>
       <div className="App">
         <Routes>
+          {/* Landing Page */}
           <Route path="/" element={<Home />} />
-          <Route path="/questionnaire" element={<Questionnaire />} />
+
+          {/* Multi-Step Flow */}
+          <Route path="/vehicle-info" element={<VehicleInfo />} />
+          <Route path="/financial-info" element={<FinancialInfo />} />
+          <Route path="/payment-info" element={<PaymentInfo />} />
+          <Route path="/plan-preferences" element={<PlanPreferences />} />
           <Route path="/payment-results" element={<PaymentResults />} />
+
+          {/* Optional Branch */}
           <Route path="/matchmaker" element={<Matchmaker />} />
         </Routes>
       </div>

@@ -15,8 +15,7 @@ function PaymentResults() {
   
   useEffect(() => {
     if (!initialData) {
-      navigate('/questionnaire')
-      return
+      navigate('/vehicle-info')
     }
   }, [initialData, navigate])
 

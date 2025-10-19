@@ -29,7 +29,7 @@ function Home() {
 
         {/* Right Side - Buttons */}
         <div className="home-right">
-          <Link to="/questionnaire" className="home-button-link">
+          <Link to="/vehicle-info" className="home-button-link">
             <div className="home-button">
               <div className="button-title">PAYMENT PLANNER</div>
               <div className="button-subtitle">I know what I want and how much it costs</div>
