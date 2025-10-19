@@ -37,12 +37,16 @@ function PaymentResults() {
 
   const [paymentCalculations, setPaymentCalculations] = useState({})
   const [planComparisonType, setPlanComparisonType] = useState('financing') // 'financing' or 'leasing'
+  const [rebates, setRebates] = useState({
+    military: false,
+    college: false
+  })
 
   // Console log every time formData changes
   useEffect(() => {
     console.log('Form data updated:', formData)
     calculatePayments()
-  }, [formData])
+  }, [formData, rebates])
 
   const handleInputChange = (e) => {
     const { name, value } = e.target
@@ -52,30 +56,103 @@ function PaymentResults() {
     }))
   }
 
+  const handleInputBlur = (e) => {
+    const { name, value } = e.target
+    
+    // List of numeric fields that should be formatted with commas
+    const numericFields = ['msrp', 'income', 'tradeInValue']
+    
+    if (numericFields.includes(name) && value) {
+      // Clean and format the value when user finishes typing
+      const cleanValue = value.replace(/[^\d]/g, '') // Remove all non-digits
+      if (cleanValue && cleanValue.length >= 4) {
+        const formattedValue = formatNumberWithCommas(cleanValue)
+        setFormData(prev => ({
+          ...prev,
+          [name]: formattedValue
+        }))
+      }
+    }
+  }
+
   const handleModelChange = (e) => {
     const { value } = e.target
-    setFormData(prev => ({
-      ...prev,
-      model: value,
-      trim: '', // Reset trim when model changes
-      msrp: toyotaVehicles[value]?.basePrice?.toString() || prev.msrp
-    }))
+    setFormData(prev => {
+      const basePrice = toyotaVehicles[value]?.basePrice
+      const formattedPrice = basePrice ? formatNumberWithCommas(basePrice.toString()) : prev.msrp
+      
+      return {
+        ...prev,
+        model: value,
+        trim: '', // Reset trim when model changes
+        msrp: formattedPrice
+      }
+    })
   }
 
   const handleTrimChange = (e) => {
     const { value } = e.target
-    const selectedTrim = toyotaVehicles[formData.model]?.trims.find(trim => trim.name === value)
-    setFormData(prev => ({
-      ...prev,
-      trim: value,
-      msrp: selectedTrim?.price?.toString() || prev.msrp
-    }))
+    setFormData(prev => {
+      const selectedTrim = toyotaVehicles[formData.model]?.trims.find(trim => trim.name === value)
+      const trimPrice = selectedTrim?.price
+      const formattedPrice = trimPrice ? formatNumberWithCommas(trimPrice.toString()) : prev.msrp
+      
+      return {
+        ...prev,
+        trim: value,
+        msrp: formattedPrice
+      }
+    })
+  }
+
+  const handleRebateChange = (rebateType) => {
+    setRebates(prev => {
+      const newRebates = {
+        ...prev,
+        [rebateType]: !prev[rebateType]
+      }
+      
+      // Update MSRP based on rebates
+      const basePrice = parseFloat(formData.msrp) || 0
+      const militaryDiscount = newRebates.military ? 500 : 0
+      const collegeDiscount = newRebates.college ? 500 : 0
+      
+      return newRebates
+    })
+  }
+
+  // Calculate effective MSRP with rebates
+  const getEffectiveMSRP = () => {
+    const basePrice = parseFloat(parseFormattedNumber(formData.msrp)) || 0
+    const militaryDiscount = rebates.military ? 500 : 0
+    const collegeDiscount = rebates.college ? 500 : 0
+    return basePrice - militaryDiscount - collegeDiscount
+  }
+
+  // Format number with commas for display
+  const formatNumberWithCommas = (value) => {
+    if (!value) return ''
+    // Convert to string and remove any existing commas
+    const stringValue = value.toString().replace(/,/g, '')
+    // Only keep digits (no decimal points for these fields)
+    const numericValue = stringValue.replace(/[^\d]/g, '')
+    // Return the numeric value with commas if 4+ digits
+    if (numericValue.length >= 4) {
+      return numericValue.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+    }
+    return numericValue
+  }
+
+  // Parse formatted number back to plain number for calculations
+  const parseFormattedNumber = (value) => {
+    if (!value) return ''
+    return value.toString().replace(/,/g, '')
   }
 
   const calculatePayments = () => {
-    const msrp = parseFloat(formData.msrp) || 0
+    const msrp = getEffectiveMSRP()
     const downPayment = parseFloat(formData.downPayment) || 0
-    const tradeInValue = parseFloat(formData.tradeInValue) || 0
+    const tradeInValue = parseFloat(parseFormattedNumber(formData.tradeInValue)) || 0
     const creditScore = parseInt(formData.creditScore) || 700
     const termLength = parseInt(formData.termLength) || 60
 
@@ -167,7 +244,7 @@ function PaymentResults() {
 
   const getFinancingTips = () => {
     const creditScore = parseInt(formData.creditScore) || 700
-    const income = parseFloat(formData.income) || 0
+    const income = parseFloat(parseFormattedNumber(formData.income)) || 0
     const monthlyPayment = parseFloat(paymentCalculations.monthlyPayment) || 0
     
     const tips = []
@@ -180,7 +257,7 @@ function PaymentResults() {
       tips.push("⚠️ Payment may be high relative to income (>20%)")
     }
     
-    if (parseFloat(formData.downPayment) < parseFloat(formData.msrp) * 0.2) {
+    if (parseFloat(formData.downPayment) < parseFloat(parseFormattedNumber(formData.msrp)) * 0.2) {
       tips.push("💰 Consider a larger down payment to reduce monthly costs")
     }
     
@@ -193,9 +270,9 @@ function PaymentResults() {
 
   // Calculate payment for a specific plan configuration
   const calculatePlanPayment = (planType, termLength, annualMileage = null) => {
-    const msrp = parseFloat(formData.msrp) || 0
+    const msrp = getEffectiveMSRP()
     const downPayment = parseFloat(formData.downPayment) || 0
-    const tradeInValue = parseFloat(formData.tradeInValue) || 0
+    const tradeInValue = parseFloat(parseFormattedNumber(formData.tradeInValue)) || 0
     const creditScore = parseInt(formData.creditScore) || 700
     
     // Calculate taxes and fees (8.5% tax + $500 fees)
@@ -322,7 +399,7 @@ function PaymentResults() {
         <h2>Customize Your Options</h2>
         
         <div className="edit-form">
-          {/* Vehicle and Financial Information Side by Side */}
+          {/* Row 1: Vehicle Information and Financial Information Side by Side */}
           <div className="edit-sections-row">
             {/* Vehicle Information */}
             <div className="edit-group">
@@ -363,10 +440,11 @@ function PaymentResults() {
                 <div className="input-group">
                   <label>MSRP ($):</label>
                   <input
-                    type="number"
+                    type="text"
                     name="msrp"
                     value={formData.msrp}
                     onChange={handleInputChange}
+                    onBlur={handleInputBlur}
                   />
                   {formData.trim && (
                     <small className="helper-text">Pre-filled from selected trim - feel free to adjust</small>
@@ -407,11 +485,12 @@ function PaymentResults() {
                 <div className="input-group">
                   <label>Annual Income ($ - Optional):</label>
                   <input
-                    type="number"
+                    type="text"
                     name="income"
                     value={formData.income}
                     onChange={handleInputChange}
-                    placeholder="50000"
+                    onBlur={handleInputBlur}
+                    placeholder="50,000"
                   />
                   <small>Helps provide better financing tips</small>
                 </div>
@@ -419,7 +498,9 @@ function PaymentResults() {
             </div>
           </div>
 
-          {/* Payment Information */}
+          {/* Row 2: Payment Information and Compare Payment Plans Side by Side */}
+          <div className="edit-sections-row">
+            {/* Payment Information */}
             <div className="edit-group">
               <h4>Payment Information</h4>
               
@@ -434,13 +515,13 @@ function PaymentResults() {
                     value={formData.downPayment || 0}
                     onChange={handleInputChange}
                     min="0"
-                    max={formData.msrp || 50000}
+                    max={parseFormattedNumber(formData.msrp) || 50000}
                     step="500"
                     className="form-slider"
                   />
-                  <span className="slider-label">${parseInt(formData.msrp || 50000).toLocaleString()}</span>
+                  <span className="slider-label">${parseInt(parseFormattedNumber(formData.msrp) || 50000).toLocaleString()}</span>
                 </div>
-                <small>Max: Vehicle MSRP (${parseInt(formData.msrp || 50000).toLocaleString()})</small>
+                <small>Max: Vehicle MSRP (${parseInt(parseFormattedNumber(formData.msrp) || 50000).toLocaleString()})</small>
               </div>
 
               {/* Trade-in Value Input */}
@@ -448,39 +529,66 @@ function PaymentResults() {
                 <div className="input-group">
                   <label>Trade-in Value ($ - Optional):</label>
                   <input
-                    type="number"
+                    type="text"
                     name="tradeInValue"
                     value={formData.tradeInValue}
                     onChange={handleInputChange}
-                    min="0"
-                    placeholder="10000"
+                    onBlur={handleInputBlur}
+                    placeholder="10,000"
                   />
                 </div>
               </div>
             </div>
 
-            {/* Plan Comparison Type Selector */}
+            {/* Rebates Section */}
             <div className="edit-group">
-              <h4>Compare Payment Plans</h4>
+              <h4>Available Rebates</h4>
               <div className="input-row">
                 <div className="input-group">
-                  <label>Plan Type:</label>
-                  <select 
-                    value={planComparisonType} 
-                    onChange={(e) => setPlanComparisonType(e.target.value)}
-                  >
-                    <option value="financing">Financing Plans</option>
-                    <option value="leasing">Leasing Plans</option>
-                  </select>
+                  <label className="checkbox-label">
+                    <input
+                      type="checkbox"
+                      checked={rebates.military}
+                      onChange={() => handleRebateChange('military')}
+                    />
+                    <span className="checkbox-text">Military - $500</span>
+                  </label>
+                </div>
+                <div className="input-group">
+                  <label className="checkbox-label">
+                    <input
+                      type="checkbox"
+                      checked={rebates.college}
+                      onChange={() => handleRebateChange('college')}
+                    />
+                    <span className="checkbox-text">College - $500</span>
+                  </label>
                 </div>
               </div>
+              {(rebates.military || rebates.college) && (
+                <div className="rebate-savings">
+                  <small>Total Savings: ${(rebates.military ? 500 : 0) + (rebates.college ? 500 : 0)}</small>
+                </div>
+              )}
             </div>
           </div>
+        </div>
       </div>
 
       {/* Plan Comparison Cards */}
       <div className="plan-comparison-section">
-        <h2>{planComparisonType === 'financing' ? 'Financing' : 'Leasing'} Plan Options</h2>
+        <div className="plan-type-selector">
+          <h2>Payment Plan Options</h2>
+          <select 
+            value={planComparisonType} 
+            onChange={(e) => setPlanComparisonType(e.target.value)}
+            className="plan-type-select"
+          >
+            <option value="financing">Financing Plans</option>
+            <option value="leasing">Leasing Plans</option>
+          </select>
+        </div>
+        <h3>{planComparisonType === 'financing' ? 'Financing' : 'Leasing'} Options</h3>
         <div className="plans-grid">
           {planComparisonType === 'financing' ? (
             getFinancingPlans().map((plan, index) => (
