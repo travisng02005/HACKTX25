@@ -4,6 +4,7 @@ import VehicleInfo from './VehicleInfo'
 import FinancialInfo from './FinancialInfo'
 import PersonalInfo from './PersonalInfo'
 import PaymentResults from './PaymentResults'
+import PlanSummary from './PlanSummary'
 import Matchmaker from './Matchmaker'
 import './App.css'
 
@@ -20,6 +21,7 @@ function App() {
           <Route path="/financial-info" element={<FinancialInfo />} />
           <Route path="/personal-info" element={<PersonalInfo />} />
           <Route path="/payment-results" element={<PaymentResults />} />
+          <Route path="/plan-summary" element={<PlanSummary />} />
 
           {/* Optional Branch */}
           <Route path="/matchmaker" element={<Matchmaker />} />

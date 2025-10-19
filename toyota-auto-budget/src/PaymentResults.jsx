@@ -157,6 +157,26 @@ function PaymentResults() {
     })
   }
 
+  // Handle plan selection and navigation to summary page
+  const handlePlanSelection = (plan) => {
+    const planData = {
+      ...plan,
+      planType: plan.termLength <= 36 ? 'lease' : 'loan' // Determine if it's from leasing or financing
+    }
+
+    const vehicleData = {
+      ...formData,
+      rebates
+    }
+
+    navigate('/plan-summary', {
+      state: {
+        planData,
+        vehicleData
+      }
+    })
+  }
+
   // Calculate effective MSRP with rebates
   const getEffectiveMSRP = () => {
     const basePrice = parseFloat(parseFormattedNumber(formData.msrp)) || 0
@@ -728,13 +748,10 @@ function PaymentResults() {
                 </div>
                 <button 
                   className="select-plan-btn"
-                  onClick={() => {
-                    setFormData(prev => ({
-                      ...prev,
-                      planType: 'loan',
-                      termLength: plan.termLength.toString()
-                    }))
-                  }}
+                  onClick={() => handlePlanSelection({
+                    ...plan,
+                    planType: 'loan'
+                  })}
                 >
                   Select This Plan
                 </button>
@@ -773,13 +790,10 @@ function PaymentResults() {
                 </div>
                 <button 
                   className="select-plan-btn"
-                  onClick={() => {
-                    setFormData(prev => ({
-                      ...prev,
-                      planType: 'lease',
-                      termLength: plan.termLength.toString()
-                    }))
-                  }}
+                  onClick={() => handlePlanSelection({
+                    ...plan,
+                    planType: 'lease'
+                  })}
                 >
                   Select This Plan
                 </button>
