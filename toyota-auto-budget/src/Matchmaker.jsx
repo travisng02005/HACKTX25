@@ -44,7 +44,7 @@ function ToyotaProgressBar({ step, totalSteps }) {
         <div
           style={{
             position: "absolute",
-            right: "-15px",
+            right: "110px",
             top: "50%",
             transform: "translateY(-50%)",
             textAlign: "center",

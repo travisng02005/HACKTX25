@@ -95,6 +95,7 @@ function FinancialInformation() {
                 {getCreditScoreRange(parseInt(formData.creditScore))}
               </small>
             </div>
+            <a href="https://www.experian.com/lp/credit-score-unbr/" target="_blank">Whats my credit score?</a>
           </div>
 
           {/* INCOME INPUT */}
@@ -157,6 +158,7 @@ function FinancialInformation() {
                 placeholder="10,000"
               />
             </div>
+            <a href="https://www.kbb.com/whats-my-car-worth/" target="_blank">Whats my car's value?</a>
           </div>
         </div>
       </div>
