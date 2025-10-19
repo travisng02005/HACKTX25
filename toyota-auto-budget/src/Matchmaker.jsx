@@ -2,6 +2,86 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./App.css";
 
+// --- Toyota Progress Bar Component ---
+function ToyotaProgressBar({ step, totalSteps }) {
+  const progress = Math.min(step / (totalSteps - 1), 1); // 0 → 1
+  const carPosition = `${progress * 95}%`;
+
+  return (
+    <div
+      style={{
+        position: "fixed",
+        top: 0,
+        left: 0,
+        width: "100%",
+        height: "100px",
+        background: "linear-gradient(to bottom, #fff, #f8f9fa)",
+        zIndex: 50,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        boxShadow: "0 2px 6px rgba(0,0,0,0.05)",
+      }}
+    >
+      <div style={{ position: "relative", width: "90%", height: "8px" }}>
+        {/* Track */}
+        <div
+          style={{
+            position: "absolute",
+            top: "50%",
+            left: 0,
+            right: 0,
+            height: "8px",
+            background: "#e5e7eb",
+            borderRadius: "10px",
+            transform: "translateY(-50%)",
+          }}
+        />
+
+        {/* Finish Line */}
+        <div
+          style={{
+            position: "absolute",
+            right: "-15px",
+            top: "50%",
+            transform: "translateY(-50%)",
+            textAlign: "center",
+          }}
+        >
+          <div style={{ height: "50px", width: "3px", background: "#111" }}></div>
+          <div style={{ fontSize: "18px", marginTop: "4px" }}>🏁</div>
+        </div>
+
+        {/* Car (moves along progress) */}
+        <div
+          style={{
+            position: "absolute",
+            top: "50%",
+            left: carPosition,
+            transform: "translate(-50%, -60%)",
+            transition: "left 0.6s ease-in-out",
+          }}
+        >
+          <svg width="80" height="40" viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg">
+            {/* Body */}
+            <rect x="30" y="40" width="120" height="25" rx="5" fill="#EB0A1E" />
+            <polygon points="30,40 50,20 150,20 170,40" fill="#C60A19" />
+            {/* Windows */}
+            <rect x="55" y="25" width="35" height="15" fill="white" opacity="0.9" />
+            <rect x="100" y="25" width="35" height="15" fill="white" opacity="0.9" />
+            {/* Wheels */}
+            <circle cx="55" cy="70" r="10" fill="black" />
+            <circle cx="135" cy="70" r="10" fill="black" />
+            <circle cx="55" cy="70" r="5" fill="gray" />
+            <circle cx="135" cy="70" r="5" fill="gray" />
+          </svg>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// --- Quiz Questions ---
 const questions = [
   { id: 1, text: "I value fuel efficiency and sustainability above all else.", traits: { eco: 1 } },
   { id: 2, text: "I prefer a compact car that's easy to park and maneuver in the city.", traits: { comfort: 0.5, style: 0.5 } },
@@ -17,32 +97,9 @@ const questions = [
   { id: 12, text: "I like trying innovative or less common technologies (like hydrogen).", traits: { innovation: 1 } },
 ];
 
-// simplified Toyota personality matrix with MSRP data
 const cars = [
-  { name: "Corolla", msrp: 26000, traits: { eco: 4, performance: 3, comfort: 5, innovation: 3, style: 3 } },
-  { name: "Corolla Hybrid", msrp: 28000, traits: { eco: 6, performance: 3, comfort: 5, innovation: 4, style: 3 } },
-  { name: "Corolla Hatchback", msrp: 27000, traits: { eco: 4, performance: 4, comfort: 4, innovation: 3, style: 5 } },
-  { name: "Prius", msrp: 30000, traits: { eco: 7, performance: 3, comfort: 5, innovation: 6, style: 4 } },
-  { name: "Prius Plug-in Hybrid", msrp: 35000, traits: { eco: 7, performance: 3, comfort: 5, innovation: 7, style: 4 } },
-  { name: "Camry", msrp: 32000, traits: { eco: 5, performance: 4, comfort: 7, innovation: 5, style: 4 } },
-  { name: "GR 86", msrp: 38000, traits: { eco: 2, performance: 7, comfort: 3, innovation: 3, style: 6 } },
-  { name: "GR Corolla", msrp: 42000, traits: { eco: 3, performance: 7, comfort: 3, innovation: 4, style: 6 } },
-  { name: "GR Supra", msrp: 55000, traits: { eco: 2, performance: 7, comfort: 4, innovation: 4, style: 7 } },
-  { name: "Sienna", msrp: 45000, traits: { eco: 4, performance: 3, comfort: 7, innovation: 5, style: 3 } },
-  { name: "Crown", msrp: 42000, traits: { eco: 5, performance: 5, comfort: 6, innovation: 6, style: 6 } },
-  { name: "Mirai", msrp: 50000, traits: { eco: 7, performance: 3, comfort: 5, innovation: 7, style: 4 } },
-  { name: "RAV4", msrp: 35000, traits: { eco: 5, performance: 4, comfort: 6, innovation: 4, style: 4 } },
+  { name: "RAV4", msrp: 35000 },
 ];
-
-// helper function to compute similarity
-function distance(user, car) {
-  const keys = Object.keys(car);
-  let sum = 0;
-  for (const k of keys) {
-    sum += (user[k] - car[k]) ** 2;
-  }
-  return Math.sqrt(sum);
-}
 
 function Matchmaker() {
   const navigate = useNavigate();
@@ -65,38 +122,37 @@ function Matchmaker() {
   };
 
   const calculateResult = () => {
-    // For hackathon - hardcode RAV4 as the result
-    const rav4 = cars.find(car => car.name === "RAV4");
-    setResult({ car: rav4, profile: {} });
+    const rav4 = cars.find((car) => car.name === "RAV4");
+    setResult({ car: rav4 });
   };
 
-  // UI
+  // --- RESULT SCREEN ---
   if (result) {
     const handleBuildRAV4 = () => {
-      // Open Toyota RAV4 configurator in new tab
-      window.open('https://www.toyota.com/configurator/build/step/model/year/2025/series/rav4/', '_blank');
-      // Redirect current page to questionnaire with RAV4 data pre-filled
-      navigate('/questionnaire', { 
-        state: { 
+      window.open("https://www.toyota.com/configurator/build/step/model/year/2025/series/rav4/", "_blank");
+      navigate("/questionnaire", {
+        state: {
           prefilledData: {
             model: result.car.name,
             msrp: result.car.msrp.toString(),
-            make: 'Toyota',
-            year: '2025'
-          }
-        }
+            make: "Toyota",
+            year: "2025",
+          },
+        },
       });
     };
 
     return (
-      <div className="container">
+      <div className="container" style={{ marginTop: "120px" }}>
+        <ToyotaProgressBar step={questions.length - 1} totalSteps={questions.length} />
         <h1>Your Toyota Match</h1>
         <h2>{result.car.name}</h2>
         <p>
           Based on your preferences, the <b>{result.car.name}</b> fits your driving personality best!
         </p>
-        <p>Starting MSRP: <strong>${result.car.msrp.toLocaleString()}</strong></p>
-        
+        <p>
+          Starting MSRP: <strong>${result.car.msrp.toLocaleString()}</strong>
+        </p>
         <div className="button-container">
           <button className="nav-button external-button" onClick={handleBuildRAV4}>
             Build Your RAV4 & Get Quote
@@ -109,8 +165,10 @@ function Matchmaker() {
     );
   }
 
+  // --- QUIZ SCREEN ---
   return (
-    <div className="container">
+    <div className="container" style={{ marginTop: "120px" }}>
+      <ToyotaProgressBar step={step} totalSteps={questions.length} />
       <h1>Matchmaker</h1>
       <p>
         Question {step + 1} of {questions.length}
@@ -125,6 +183,7 @@ function Matchmaker() {
           max="7"
           value={answers[currentQuestion.id] || 4}
           onChange={(e) => handleAnswer(Number(e.target.value))}
+          style={{ width: "100%", margin: "1.5rem 0" }}
         />
         <span>Strongly Agree</span>
       </div>
